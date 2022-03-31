@@ -1,0 +1,588 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+"CM カットに関する情報"
+type CmEdit {
+    "CM カット閾値"
+    detectThreshold: CmEditDetectThreshold!
+    "CMカットルール MP4"
+    mp4Rule: CmEditRule!
+    "CMカットルール TS"
+    tsRule: CmEditRule!
+}
+
+"ディスク情報"
+type DiskInfo {
+    "総容量 (バイト)"
+    totalBytes: Long!
+    "使用可能容量 (バイト)"
+    usableBytes: Long!
+}
+
+"パケット識別子ごとのドロップ情報"
+type DropInfoDetail {
+    "ドロップしたパケット数"
+    drop: Int!
+    "パケット識別子"
+    pid: Int
+    "スクランブルされているパケット数"
+    scrambling: Int!
+    "パケット数"
+    total: Int!
+}
+
+"ドロップ情報概要"
+type DropInfoSummary {
+    "全ドロップしたパケット数"
+    dropSum: Int!
+    "全スクランブルされているパケット数"
+    scramblingSum: Int!
+    "全パケット数"
+    totalSum: Int!
+}
+
+"キーワードグループ"
+type KeywordGroup {
+    "キーワード"
+    keyword: String!
+    "キーワードグループ ID"
+    keywordGroupId: Int!
+}
+
+type Mutation {
+    """
+
+    放送の動画ファイルを削除します
+    @param input 放送動画削除入力
+    """
+    deleteSubtitleVideo(input: [DeleteSubtitleVideoInput!]!): Void
+    "トランスコードを開始します"
+    startTranscode: Void
+    """
+
+    チャンネルを更新します
+    @param input チャンネル更新入力
+    """
+    updateStation(input: StationUpdateInput): Station
+    """
+
+    放送を更新します
+    @param input 放送更新入力
+    @return 更新された放送
+    """
+    updateSubtitle(input: SubtitleUpdateInput!): Subtitle!
+    """
+
+    放送の動画ファイルをアップロードします
+    @param input 放送動画アップロード入力
+    @param video 動画ファイル
+    """
+    uploadSubtitleVideo(input: UploadSubtitleVideoInput!, video: Upload!): Subtitle!
+}
+
+"番組"
+type Program {
+    "アスペクト比"
+    aspect: Int
+    "番組開始時期"
+    firstLight: LocalDate
+    "タイトル (短縮)"
+    shortTitle: String!
+    "プライマリキー"
+    tId: Int!
+    "タイトル"
+    title: String!
+    "タイトル (英語)"
+    titleEn: String!
+    "タイトル (読み)"
+    titleYomi: String!
+}
+
+"番組取得結果"
+type ProgramResult {
+    "ページのデータ"
+    data: [Program!]!
+    "検索結果の最大取得件数"
+    limit: Int!
+    "検索の先頭からのオフセット"
+    offset: Int!
+    "総行数"
+    total: Int!
+}
+
+type Query {
+    "ディスク情報を取得します"
+    diskInfo: DiskInfo!
+    """
+
+    キーワードグループを取得します
+
+    @param query クエリ
+    """
+    keywordGroups(query: KeywordGroupQueryInput): [KeywordGroup!]!
+    """
+
+    番組を取得します
+
+    @param query クエリ
+    @param offset 検索の先頭からのオフセット
+    @param limit 検索結果の最大取得件数
+    """
+    programs(limit: Int! = 100, offset: Int!, query: ProgramQueryInput): ProgramResult!
+    """
+
+    チャンネルを取得します
+
+    @param query クエリ
+    """
+    stations(query: StationQueryInput): StationResult!
+    """
+
+    放送を取得します
+
+    @param pId 放送 ID
+    """
+    subtitle(pId: Int!): Subtitle
+    """
+
+    指定されたクエリにおける、指定された放送のオフセットを取得します
+
+    @param query クエリ
+    @param pId 放送 IS
+    """
+    subtitleOffset(pId: Int!, query: SubtitleQueryInput): Int
+    """
+
+    放送を取得します
+
+    @param query クエリ
+    @param offset 検索の先頭からのオフセット
+    @param limit 検索結果の最大取得件数
+    """
+    subtitles(limit: Int! = 100, offset: Int!, query: SubtitleQueryInput): SubtitleResult!
+    "API のバージョンを取得します"
+    version: String!
+}
+
+"チャンネル"
+type Station {
+    "CM 検出閾値"
+    cmEditDetectThreshold: CmEditDetectThreshold
+    "物理チャンネル"
+    digitalCh: Int
+    "種別"
+    digitalStationBand: DigitalStationBand
+    "EPG 名"
+    epgName: String
+    "ontvcode"
+    ontvcode: String
+    "受信可否"
+    receiving: Boolean!
+    "不明"
+    stationCallSign: String
+    "チャンネルID"
+    stationId: Int!
+    "局名"
+    stationName: String!
+    "局の URL"
+    stationUri: String
+}
+
+"チャンネル取得結果"
+type StationResult {
+    "ページのデータ"
+    data: [Station!]!
+    "総行数"
+    total: Int!
+}
+
+"放送"
+type Subtitle {
+    "アスペクト比"
+    aspect: Int
+    "CM カット情報"
+    cmEdit: CmEdit!
+    "話数"
+    countNo: Int
+    "パケット識別子ごとのドロップ情報"
+    dropInfoDetail: [DropInfoDetail!]
+    "ドロップ情報概要"
+    dropInfoSummary: DropInfoSummary
+    "放映尺"
+    duration: Duration!
+    "トランスコード品質"
+    encodeSetting: TranscodeQuality
+    "放送終了日時"
+    endDateTime: LocalDateTime!
+    "EPG 録画の場合、登録したユーザID そうでない場合 NULL"
+    epgAddedBy: Int
+    "ステータス"
+    fileStatus: FileStatus
+    "HD 動画ファイルへの URI"
+    hdVideoUri: URI
+    "すべてのキーワードグループ"
+    keywordGroups: [KeywordGroup!]
+    "最終更新日時"
+    lastUpdate: OffsetDateTime
+    "放映尺 (分)"
+    lengthMin: Int!
+    "TS のファイル名"
+    m2pFilename: String
+    "HD 動画ファイル名"
+    mp4hd: String
+    "放送ID"
+    pId: Int!
+    "番組"
+    program: Program!
+    "SD 動画ファイル名"
+    pspFilename: String
+    "録画タイプ"
+    recordingType: RecordingType!
+    "SD 動画ファイルへの URI"
+    sdVideoUri: URI
+    "放送開始日時"
+    startDateTime: LocalDateTime!
+    "開始時刻オフセット (秒)"
+    startOffset: Int!
+    "チャンネル"
+    station: Station!
+    "チャンネルID (foltia_station.stationid に連結)"
+    stationId: Int!
+    "サブタイトル"
+    subtitle: String
+    "しょぼいカレンダーフラグ"
+    syobocalFlag: [SyobocalFlag!]!
+    "しょぼいカレンダー修正回数"
+    syobocalRev: Int
+    "番組ID (foltia_program.tid に連結)"
+    tId: Int!
+    "サムネイルの URI"
+    thumbnailUri: URI
+    "動画全体のサムネイルの URI"
+    thumbnailUris: [URI!]
+    "TS 動画ファイルへの URI"
+    tsVideoUri: URI
+}
+
+"放送取得結果"
+type SubtitleResult {
+    "ページのデータ"
+    data: [Subtitle!]!
+    "検索結果の最大取得件数"
+    limit: Int!
+    "検索の先頭からのオフセット"
+    offset: Int!
+    "総行数"
+    total: Int!
+}
+
+"CM カット閾値"
+enum CmEditDetectThreshold {
+    "強"
+    HIGH
+    "弱"
+    LOW
+    "中"
+    MEDIUM
+    "オフ"
+    OFF
+}
+
+"CM カットルール"
+enum CmEditRule {
+    "チャプタ追加"
+    ADD_CHAPTERS
+    "本編のみ (CMカット)"
+    DELETE_CM
+    "編集しない"
+    DO_NOTHING
+    "CMのみ (本編カット)"
+    LEAVE_ONLY_CM
+    "本編+CM(同尺並べ替え)"
+    SORT_CM
+}
+
+"種別"
+enum DigitalStationBand {
+    "BS デジタル"
+    BS
+    "CS デジタル"
+    CS
+    "ラジオ"
+    RADIO
+    "地上波デジタル"
+    TERRESTRIAL
+    "未定義"
+    UNDEFINED
+}
+
+"昇順・降順"
+enum Direction {
+    "昇順"
+    Ascending
+    "降順"
+    Descending
+}
+
+"ステータス"
+enum FileStatus {
+    "全完了"
+    ALL_COMPLETE
+    "静止画キャプ終了"
+    CAPEND
+    "静止画キャプ中"
+    CAPTURE
+    "MPEG2録画終了"
+    RECEND
+    "録画中"
+    RECORDING
+    "TSSplit中"
+    REC_TS_SPLITTING
+    "予約中(5分以上先)"
+    RESERVING_LONG
+    "予約中(5分以内)"
+    RESERVING_SHORT
+    "サムネイル作成済み(.THM)"
+    THM_CREATE
+    "トラコン中:AAC"
+    TRANSCODE_AAC
+    "トラコン中:ATOM"
+    TRANSCODE_ATOM
+    "トラコン完了"
+    TRANSCODE_COMPLETE
+    "変換不能"
+    TRANSCODE_FAILED
+    "トラコン中:H264"
+    TRANSCODE_FFMPEG
+    "トラコン中:MP4Box"
+    TRANSCODE_MP4BOX
+    "トラコン中:TSsplit"
+    TRANSCODE_TS_SPLITTING
+    "トラコン中:WAVE"
+    TRANSCODE_WAVE
+    "静止画キャプチャ待"
+    WAITING_CAPTURE
+    "HDトラコン待機中"
+    WAITING_HD_TRANSCODE
+    "トラコン待"
+    WAITING_TRANSCODE
+}
+
+"録画タイプ型"
+enum RecordingType {
+    "EPG 録画"
+    Epg
+    "キーワード録画"
+    Keyword
+    "アニメ自動録画"
+    Program
+}
+
+"""
+
+しょぼいカレンダーフラグ
+https://docs.cal.syoboi.jp/spec/proginfo-flag/
+"""
+enum SyobocalFlag {
+    "注"
+    Attention
+    "最終回"
+    End
+    "新番組"
+    New
+    "再放送"
+    Rerun
+}
+
+"トランスコード品質"
+enum TranscodeQuality {
+    "SD + HD"
+    BOTH
+    "HD"
+    HD
+    "変換しない"
+    NONE
+    "SD のみ"
+    SD
+}
+
+"動画ファイルの種別を表現します"
+enum VideoType {
+    "HD 画質"
+    HD
+    "SD 画質"
+    SD
+    "録画ファイル"
+    TS
+}
+
+"""
+
+デュレーション型
+例: PT8H6M12.345S
+"""
+scalar Duration
+
+"""
+
+ローカルな日付型
+例: 2020-06-04
+"""
+scalar LocalDate
+
+"""
+
+ローカル日時型 ISO-8601形式
+例: 2020-06-04T20:26:32
+"""
+scalar LocalDateTime
+
+"Long 型"
+scalar Long
+
+"""
+
+オフセット付き日時型 ISO-8601形式
+例: 2020-06-04T20:26:32+09:00
+"""
+scalar OffsetDateTime
+
+"URI 型"
+scalar URI
+
+"ファイルアップロード型"
+scalar Upload
+
+"Void 型"
+scalar Void
+
+"放送動画削除入力"
+input DeleteSubtitleVideoInput {
+    "放送ID"
+    pId: Int
+    "物理削除の場合 true そうでない場合 false"
+    physical: Boolean = false
+    "動画ファイルの種別"
+    videoTypes: [VideoType!]!
+}
+
+"キーワードグループクエリ入力"
+input KeywordGroupQueryInput {
+    """
+
+    録画が存在するキーワードグループを取得する場合 true
+    録画が存在しないキーワードグループを取得する場合 false
+    両方のキーワードグループを取得する場合 null
+    """
+    hasRecording: Boolean
+    "キーワード (部分一致)"
+    keywordContains: String
+}
+
+"番組クエリ入力"
+input ProgramQueryInput {
+    "番組開始時期の最小値"
+    firstLightAfter: LocalDate
+    "番組開始時期の最大値"
+    firstLightBefore: LocalDate
+    """
+
+    録画が存在する番組を取得する場合 true
+    録画が存在しない番組を取得する場合 false
+    両方の番組を取得する場合 null
+    """
+    hasRecording: Boolean
+    "番組タイトル (部分一致)"
+    titleContains: String
+}
+
+"チャンネルクエリ入力"
+input StationQueryInput {
+    """
+
+    受信可能なチャンネルのみを取得する場合 true
+    受信不能なチャンネルのみを取得する場合 false
+    すべてのチャンネルを取得する場合 null
+    """
+    receivableStation: Boolean = true
+}
+
+"チャンネル更新入力"
+input StationUpdateInput {
+    "CM 検出閾値"
+    cmEditDetectThreshold: CmEditDetectThreshold
+    "物理チャンネル"
+    digitalCh: Int
+    "ontvcode"
+    ontvcode: String
+    "受信可否"
+    receiving: Boolean
+    "チャンネルID"
+    stationId: Int!
+    "局名"
+    stationName: String
+}
+
+"放送クエリ入力"
+input SubtitleQueryInput {
+    "ソート方向"
+    direction: Direction
+    """
+
+    録画が存在する放送を取得する場合 true
+    録画が存在しない放送を取得する場合 false
+    両方の放送を取得する場合 null
+    """
+    hasRecording: Boolean
+    "キーワードグループID"
+    keywordGroupId: Int
+    """
+
+    hasRecording=true の場合に、録画中の放送を「録画が存在する」とみなす場合 true
+    そうでない場合 false もしくは null
+    """
+    nowRecording: Boolean
+    """
+
+    受信可能なチャンネルの放送のみを取得する場合 true
+    受信不能なチャンネルの放送のみを取得する場合 false
+    すべての放送を取得する場合 null
+    """
+    receivableStation: Boolean = true
+    "録画タイプ"
+    recordingTypes: [RecordingType!]
+    "サブタイトル (部分一致)"
+    subtitleContains: String
+    "番組ID"
+    tId: Int
+}
+
+"放送更新入力"
+input SubtitleUpdateInput {
+    "トランスコード品質"
+    encodeSetting: TranscodeQuality
+    "ステータス"
+    fileStatus: FileStatus
+    "TS のファイル名"
+    m2pFilename: String
+    "HD 動画ファイル名"
+    mp4hd: String
+    "放送ID"
+    pId: Int!
+    "SD 動画ファイル名"
+    pspFilename: String
+    "サブタイトル"
+    subtitle: String
+}
+
+"放送動画アップロード入力"
+input UploadSubtitleVideoInput {
+    "放送ID"
+    pId: Int
+    "動画ファイルの種別"
+    videoType: VideoType!
+}

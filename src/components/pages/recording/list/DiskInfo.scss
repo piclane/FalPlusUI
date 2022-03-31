@@ -1,0 +1,23 @@
+.disk-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .circle-container {
+    display: inline-flex;
+    position: relative;
+  }
+
+  .MuiTypography-root {
+    cursor: default;
+  }
+
+  .title {
+    font-family: 'Exo', sans-serif;
+  }
+
+  &.error {
+    color: palevioletred;
+  }
+}
