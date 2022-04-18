@@ -1,0 +1,63 @@
+.recording-detail {
+  .subtitle-detail-card {
+    dl {
+      margin: 0;
+    }
+
+    dd {
+      margin-inline-start: 0.5em;
+      margin-bottom: 0.2ex;
+
+      &:before {
+        content: '▶';
+        color: lightcoral;
+        margin-right: 0.5em;
+      }
+    }
+
+    @media screen and (max-width: 400px) {
+      .thumbnail-container {
+        display: none;
+      }
+    }
+  }
+
+  .thumbnails {
+    margin: 10px -5px 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+
+    .thumbnail {
+      display: inline-block;
+      position: relative;
+      margin: 5px;
+
+      img {
+        display: block;
+        width: 192px;
+        height: 108px;
+        border: 1px solid black;
+
+        @media screen and (max-width: 400px) {
+          width: calc(192px * 0.85);
+          height: calc(108px * 0.85);
+        }
+      }
+
+      span {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
+        background-color: rgba(0, 0, 0, .6);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 2px 4px;
+        user-select: none;
+        cursor: default;
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+overwrite: true
+schema:
+  - http://localhost:8091/api/graphql
+generates:
+  ./src/Model.ts:
+    plugins:
+      - typescript
+    config:
+      enumsAsTypes: true
+      declarationKind: interface
+config:
+  scalars:
+    Duration: string
+    LocalDate: string
+    LocalDateTime: string
+    OffsetDateTime: string
+    URI: string
+    Long: number
+    Void: void
