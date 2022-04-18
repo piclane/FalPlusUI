@@ -21,7 +21,7 @@ import {
 import "./Player.scss";
 import {normalizeTitle} from "@/utils/SubtitleUtil";
 import {Error, PlayCircleOutline, QuestionMark} from "@mui/icons-material";
-import {isDesktop, isMobile} from 'react-device-detect';
+import {isDesktop, isMobile, isIOS} from 'react-device-detect';
 import AppTopHeader from "@/components/atoms/AppTopHeader";
 import {
   buildSearchParams,
@@ -274,6 +274,7 @@ export default function Player() {
       autoplay: true,
       controls: true,
       playsInline: true,
+      muted: isIOS,
       nativeControlsForTouch: !isDesktop,
       preload: 'metadata',
       sources: [{
@@ -281,29 +282,36 @@ export default function Player() {
         type: 'video/mp4'
       }]
     };
+    const handleMouseMoving = () => {
+      setMouseMoving(true);
+      if (mouseMovingTimerId !== null) {
+        clearTimeout(mouseMovingTimerId);
+      }
+      const timerId = setTimeout(() => {
+        setMouseMoving(false);
+      }, isIOS ? 4000 : 2000);
+      setMouseMovingTimerId(timerId);
+    };
     const onReady = async function(this: videojs.Player) {
       this.one('canplay', e => {
         if(time) {
           this.currentTime(time);
         }
+        if(isIOS) {
+          this.muted(false);
+        }
       });
       this.on('play', e => {
         setState("playing");
+        handleMouseMoving();
       });
       this.on('pause', e => {
         setState("stopped");
       });
-      this.on('useractive', _ => {
-        if(isMobile) {
-          this.play(); // モバイル端末で画面タップした場合に再生したい
-        }
-      });
       this.on('timeupdate', function(this: videojs.Player) {
         const duration = this.duration();
         const time = this.currentTime();
-        const el = this.contentEl() as HTMLVideoElement;
         setTimeRemainingSec(duration - time);
-        el.setAttribute("controls", "controls");
       });
     };
 
@@ -315,14 +323,21 @@ export default function Player() {
           timeRemainingSec < 15 ? 'show-next-video' : ''
         ].join(' ')}
         onMouseMove={() => {
-          setMouseMoving(true);
-          if(mouseMovingTimerId !== null) {
-            clearTimeout(mouseMovingTimerId);
+          if(isDesktop) {
+            handleMouseMoving();
           }
-          const timerId = setTimeout(() => {
-            setMouseMoving(false);
-          }, 2000);
-          setMouseMovingTimerId(timerId);
+        }}
+        onTouchStart={(e) => {
+          if(isMobile) {
+            if(mouseMoving) {
+              setMouseMoving(false);
+              if (mouseMovingTimerId !== null) {
+                clearTimeout(mouseMovingTimerId);
+              }
+            } else {
+              handleMouseMoving();
+            }
+          }
         }}
       >
         <ThemeProvider theme={headerTheme}>
