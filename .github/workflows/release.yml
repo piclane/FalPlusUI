@@ -1,0 +1,30 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - run: yarn install --immutable
+
+      - run: ./package.sh
+        env:
+          CI: false
+
+      - name: "Release the package"
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          generateReleaseNotes: true
+          artifacts: "dist/*.tar.gz"
+          token: ${{ secrets.GITHUB_TOKEN }}

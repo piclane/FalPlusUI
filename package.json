@@ -1,6 +1,6 @@
 {
   "name": "foltia_ui",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "license": "MIT",
   "homepage": "/falp",
   "dependencies": {
@@ -48,6 +48,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
+    "package": "./package.sh",
     "gql-codegen": "graphql-codegen --config gql-codegen.yml"
   },
   "eslintConfig": {
