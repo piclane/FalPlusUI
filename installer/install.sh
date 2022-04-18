@@ -49,7 +49,7 @@ pushd "${TARGET_DIR}/php/phpcommon" >/dev/null
 cat foltialib.php \
 | grep -v '<!-- FALP -->' \
 | tr '\n' '\0' \
-| sed -E -e 's!</ul>\x00<\!-- /id=gnavi/end -->!<\!-- FALP --><li><a href="/falp/"><img src="/images/gnavi/gnavi07.png" alt="FAL+" /></a></li>\n</ul>\n<\!-- /id=gnavi/end -->!' \
+| sed -E -e 's!</ul>\x00<\!-- /id=gnavi/end -->!<\!-- FALP --><li><a href="/falp/"><img src="/images/gnavi/gnavi08.png" alt="FAL+" /></a></li>\n</ul>\n<\!-- /id=gnavi/end -->!' \
 | tr '\0' '\n' \
 > foltialib.php.new
 chown foltia. foltialib.php.new
@@ -64,9 +64,9 @@ cp "${SCRIPT_DIR}/images/btn_falp_on.png" "${TARGET_DIR}/php/images/top/btn_falp
 chown foltia. "${TARGET_DIR}"/php/images/top/*.png
 chmod 644 "${TARGET_DIR}"/php/images/top/*.png
 
-## gnavi07.png
-cp "${SCRIPT_DIR}/images/gnavi07.png" "${TARGET_DIR}/php/images/gnavi/gnavi07.png"
-cp "${SCRIPT_DIR}/images/gnavi07_on.png" "${TARGET_DIR}/php/images/gnavi/gnavi07_on.png"
+## gnavi08.png
+cp "${SCRIPT_DIR}/images/gnavi08.png" "${TARGET_DIR}/php/images/gnavi/gnavi08.png"
+cp "${SCRIPT_DIR}/images/gnavi08_on.png" "${TARGET_DIR}/php/images/gnavi/gnavi08_on.png"
 chown foltia. "${TARGET_DIR}"/php/images/gnavi/*.png
 chmod 644 "${TARGET_DIR}"/php/images/gnavi/*.png
 
