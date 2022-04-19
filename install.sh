@@ -13,4 +13,4 @@ tar zxf fui.tar.gz
 \rm -f fui.tar.gz
 cd "foltia_ui-${VERSION}"
 su -c "$(pwd)/install.sh" -
-popd
+popd >/dev/null
