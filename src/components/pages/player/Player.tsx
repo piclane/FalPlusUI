@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Link as RouterLink, useNavigate, useParams, useSearchParams} from "react-router-dom";
-import VideoPlayer, {VideoPlayerOptions} from "@/components/atoms/VideoPlayer";
+import VideoPlayer, {VideoPlayerSource} from "@/components/atoms/VideoPlayer";
 import videojs from 'video.js';
 import {ApolloClient, gql, useApolloClient, useLazyQuery} from "@apollo/client";
 import {Subtitle, SubtitleQueryInput, SubtitleResult} from "@/Model";
@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import "./Player.scss";
-import {normalizeTitle} from "@/utils/SubtitleUtil";
+import {normalizeTitle, safeNormalizeTitle} from "@/utils/SubtitleUtil";
 import {Error, PlayCircleOutline, QuestionMark} from "@mui/icons-material";
 import {isDesktop, isMobile, isIOS} from 'react-device-detect';
 import AppTopHeader from "@/components/atoms/AppTopHeader";
@@ -148,7 +148,23 @@ const nextVideoTheme = createTheme({
         root: {
           color: 'white'
         }
-      }
+      },
+      variants: [{
+        props: { variant: 'body1' },
+        style: {
+          fontSize: "12px",
+          fontWeight: "bold",
+        }
+      }, {
+        props: { variant: 'body2' },
+        style: {
+          fontSize: "10px",
+          display: "-webkit-box",
+          overflow: 'hidden',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+        }
+      }]
     }
   }
 });
@@ -208,6 +224,8 @@ export default function Player() {
   const [mouseMovingTimerId, setMouseMovingTimerId] = useState<NodeJS.Timeout | null>(null);
   const [nextSubtitle, setNextSubtitle] = useState<Subtitle | null>(null);
   const [timeRemainingSec, setTimeRemainingSec] = useState<number>(999999);
+  const [player, setPlayer] = useState<videojs.Player | null>(null);
+  const [playing, setPlaying] = useState<VideoPlayerSource | null>(null);
   const {pId, time, isContinuous} = useQueryParams();
   const [query] = useSearchQuery();
   const [order] = useSearchOrder();
@@ -218,6 +236,13 @@ export default function Player() {
     variables: {
       pId: pId
     },
+    onCompleted(data: {subtitle: Subtitle}) {
+      const s = data.subtitle;
+      setPlaying({
+        src: s.hdVideoUri ?? s.sdVideoUri ?? '',
+        type: 'video/mp4'
+      });
+    }
   });
 
   useEffect(() => {
@@ -243,6 +268,12 @@ export default function Player() {
     }
   }, [nextSubtitle, timeRemainingSec]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if(player && playing) {
+      player.src(playing);
+    }
+  }, [player, playing]);
+
   if(pId === null) {
     return (
       <Box className="player error">
@@ -251,71 +282,55 @@ export default function Player() {
     );
   }
 
-  if(loading || !data) {
-    return (
-      <Box className="player">
-        <Backdrop
-          sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
-          open>
-          <CircularProgress color="inherit"/>
-        </Backdrop>
-      </Box>
-    );
-  } else if (error) {
-    return (
-      <Box className="player error">
-        <Error className="icon" />
-      </Box>
-    );
-  } else {
-    const s = data.subtitle;
-    const titles = normalizeTitle(s);
-    const options: VideoPlayerOptions = {
-      autoplay: true,
-      controls: true,
-      playsInline: true,
-      muted: isIOS,
-      nativeControlsForTouch: !isDesktop,
-      preload: 'metadata',
-      sources: [{
-        src: s.hdVideoUri ?? s.sdVideoUri ?? '',
-        type: 'video/mp4'
-      }]
-    };
-    const handleMouseMoving = () => {
-      setMouseMoving(true);
-      if (mouseMovingTimerId !== null) {
-        clearTimeout(mouseMovingTimerId);
+  const titles = safeNormalizeTitle(data?.subtitle ?? null);
+  const handleMouseMoving = () => {
+    setMouseMoving(true);
+    if (mouseMovingTimerId !== null) {
+      clearTimeout(mouseMovingTimerId);
+    }
+    const timerId = setTimeout(() => {
+      setMouseMoving(false);
+    }, 2000);
+    setMouseMovingTimerId(timerId);
+  };
+  const onReady = async (player: videojs.Player) => {
+    setPlayer(player);
+    player.one('canplay', _ => {
+      player.currentTime(time ?? 0);
+      if(isIOS) {
+        player.muted(false);
       }
-      const timerId = setTimeout(() => {
-        setMouseMoving(false);
-      }, isIOS ? 4000 : 2000);
-      setMouseMovingTimerId(timerId);
-    };
-    const onReady = async function(this: videojs.Player) {
-      this.one('canplay', e => {
-        if(time) {
-          this.currentTime(time);
-        }
-        if(isIOS) {
-          this.muted(false);
-        }
-      });
-      this.on('play', e => {
-        setState("playing");
-        handleMouseMoving();
-      });
-      this.on('pause', e => {
-        setState("stopped");
-      });
-      this.on('timeupdate', function(this: videojs.Player) {
-        const duration = this.duration();
-        const time = this.currentTime();
-        setTimeRemainingSec(duration - time);
-      });
-    };
+    });
+    player.on('play', _ => {
+      setState("playing");
+      handleMouseMoving();
+    });
+    player.on('pause', _ => {
+      setState("stopped");
+    });
+    player.on('timeupdate', function(this: videojs.Player) {
+      const duration = this.duration();
+      const time = this.currentTime();
+      setTimeRemainingSec(duration - time);
+    });
+  };
 
-    return (
+  return (
+    <>
+      {loading || !data
+      ? <Box className="player loading">
+          <Backdrop
+            sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
+            open>
+            <CircularProgress color="inherit"/>
+          </Backdrop>
+        </Box>
+      : <></>}
+      {error
+      ? <Box className="player error">
+          <Error className="icon" />
+        </Box>
+      : <></>}
       <Box
         className={[
           'player', state,
@@ -327,7 +342,7 @@ export default function Player() {
             handleMouseMoving();
           }
         }}
-        onTouchStart={(e) => {
+        onTouchStart={() => {
           if(isMobile) {
             if(mouseMoving) {
               setMouseMoving(false);
@@ -369,22 +384,10 @@ export default function Player() {
               <Card className="next-video">
                 <CardHeader
                   title="次の動画"
-                  subheader={
-                    <>
-                      <Typography sx={{
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                        }}
-                        variant="body1"
-                      >{ titles.title }</Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "10px"
-                        }}
-                        variant="body2"
-                      >{ titles.subtitle }</Typography>
-                    </>
-                  }
+                  subheader={<>
+                    <Typography variant="body1">{ titles.title }</Typography>
+                    <Typography variant="body2">{ titles.subtitle }</Typography>
+                  </>}
                 />
                 <Link
                   className="thumbnail-container"
@@ -404,8 +407,15 @@ export default function Player() {
             </ThemeProvider>
           );
         })()}
-        <VideoPlayer options={options} onReady={onReady} />
+        <VideoPlayer
+          autoplay
+          controls
+          playsInline
+          muted={isIOS}
+          onReady={onReady}
+          preload="metadata"
+        />
       </Box>
-    );
-  }
+    </>
+  );
 }

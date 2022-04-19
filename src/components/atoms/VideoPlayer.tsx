@@ -7,31 +7,31 @@ import {Box} from "@mui/material";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 
-export interface VideoPlayerOptions extends VideoJsPlayerOptions {
-  playsInline?: boolean;
-}
+export type VideoPlayerSource = videojs.Tech.SourceObject;
 
-export interface VideoPlayerPropsInterface {
-  options?: VideoPlayerOptions;
-  onReady?: videojs.ReadyCallback;
+export interface VideoPlayerPropsInterface extends VideoJsPlayerOptions {
+  playsInline?: boolean;
+  onReady?: (player: videojs.Player) => void;
   sx?: SxProps<Theme>;
 }
 
 export default function VideoPlayer(props: VideoPlayerPropsInterface) {
   const videoElementRef = useRef<HTMLVideoElement>();
+  const onReady: videojs.ReadyCallback = function(this: videojs.Player) {
+    if(props?.playsInline) {
+      this.tech('thisIsSafe').setAttribute("playsInline", "playsInline");
+    }
+    props.onReady?.(this);
+  };
 
   useEffect(() => {
-    const player = videojs(videoElementRef.current!, props.options, props.onReady);
+    const player = videojs(videoElementRef.current!, props, onReady);
     return () => {
       if (player) {
         player.dispose();
       }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const videoProps = {
-    playsInline: props.options?.playsInline ?? false,
-  };
 
   return (
     <Box className="vjs-big-play-centered" sx={props.sx}>
@@ -40,7 +40,6 @@ export default function VideoPlayer(props: VideoPlayerPropsInterface) {
           // @ts-ignore
           ref={videoElementRef}
           className="video-js"
-          {...videoProps}
         />
       </div>
     </Box>
