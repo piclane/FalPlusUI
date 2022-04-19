@@ -21,30 +21,7 @@ Foltia ANIME LOCKER 用の拡張 UI
 
 ## スクリーンショット
 
-### デスクトップ
-
-録画一覧画面
-![録画一覧画面](doc/images/desktop_recording_list.png)
-
-録画一覧画面 (フィルタ)
-![録画一覧画面 (フィルタ)](doc/images/desktop_recording_detail.png)
-
-録画詳細画面
-![録画詳細画面](doc/images/desktop_recording_detail.png)
-
-動画プレイヤー画面
-![動画プレイヤー画面](doc/images/desktop_player.png)
-
-### iPhone
-
-録画一覧画面
-![録画一覧画面](doc/images/ios_recording_list.png)
-
-録画詳細画面
-![録画詳細画面](doc/images/ios_recording_detail.png)
-
-動画プレイヤー画面
-![動画プレイヤー画面](doc/images/ios_player.png)
+![スクリーンショット](doc/images/screenshot.jpg)
 
 ## これから提供したい機能
 
@@ -55,7 +32,12 @@ Foltia ANIME LOCKER 用の拡張 UI
 
 ### インストール
 
-Foltia AnimeLocker に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
+Foltia ANIME LOCKER に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
+```bash
+$ curl -SsL 'https://raw.githubusercontent.com/piclane/FoltiaApi/develop/install.sh' | bash
+```
+
+上記の方法が上手く行かない場合は以下を試してみて下さい。
 ```bash
 $ curl -L -o /tmp/fui.tar.gz "$(curl -sS -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/repos/piclane/FoltiaUI/releases/latest' | grep '"browser_download_url"' | sed -E -e 's/^.*"(https:[^"]+)"$/\1/')"
 $ cd /tmp
@@ -67,7 +49,7 @@ $ su -c "$(pwd)/install.sh" -
 
 ### アンインストール
 
-Foltia AnimeLocker に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
+Foltia ANIME LOCKER に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
 ```bash
 $ cd /tmp/foltia_ui-<version>
 $ su -c "$(pwd)/uninstall.sh" -

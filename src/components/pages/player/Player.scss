@@ -37,13 +37,17 @@
   .next-video {
     z-index: 2;
     position: absolute;
-    min-width: 200px;
+    min-width: 180px;
+    max-width: 250px;
     width: 25vw;
-    right: 3.5%;
-    bottom: calc(30px + 3.5%);
+    right: 2vmax;
+    bottom: calc(30px + 2vmax);
+    box-sizing: border-box;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 1s ease;
+    user-select: none;
+    cursor: default;
 
     .thumbnail-container {
       position: relative;
@@ -87,6 +91,8 @@
   }
 
   &.error {
+    z-index: 5001;
+
     .icon {
       position: absolute;
       top: 50%;
@@ -94,5 +100,9 @@
       transform: translateX(-50%) translateY(-50%);
       font-size: 30vw;
     }
+  }
+
+  &.loading {
+    z-index: 5001;
   }
 }

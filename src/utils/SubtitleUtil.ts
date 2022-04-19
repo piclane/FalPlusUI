@@ -6,6 +6,14 @@ export interface Titles {
   subtitle: string;
 }
 
+export function safeNormalizeTitle(subtitle: Subtitle | null): Titles {
+  if(subtitle === null) {
+    return {title: '', subtitle: ''};
+  } else {
+    return normalizeTitle(subtitle);
+  }
+}
+
 export function normalizeTitle(subtitle: Subtitle): Titles {
   const s = subtitle;
   if(s.tId === TID_KEYWORD) {
