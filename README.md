@@ -34,6 +34,11 @@ Foltia ANIME LOCKER 用の拡張 UI
 
 Foltia ANIME LOCKER に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
 ```bash
+$ curl -SsL 'https://raw.githubusercontent.com/piclane/FoltiaApi/develop/install.sh' | bash
+```
+
+上記の方法が上手く行かない場合は以下を試してみて下さい。
+```bash
 $ curl -L -o /tmp/fui.tar.gz "$(curl -sS -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/repos/piclane/FoltiaUI/releases/latest' | grep '"browser_download_url"' | sed -E -e 's/^.*"(https:[^"]+)"$/\1/')"
 $ cd /tmp
 $ tar zxf fui.tar.gz
