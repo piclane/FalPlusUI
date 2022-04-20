@@ -135,8 +135,9 @@ const theme = createTheme({
 });
 
 function Detail({subtitle: s}: {subtitle: Subtitle}) {
-  const dropRatio = (s.dropInfoSummary?.dropSum ?? 1) / (s.dropInfoSummary?.totalSum ?? 1) * 100.0;
-  const dropRatioFormatter = new Intl.NumberFormat('ja-JP', {style: 'percent', maximumFractionDigits: 2});
+  const dropRatio = (s.dropInfoSummary?.dropSum ?? 1) / (s.dropInfoSummary?.totalSum ?? 1);
+  const scramblingRatio = (s.dropInfoSummary?.scramblingSum ?? 1) / (s.dropInfoSummary?.totalSum ?? 1);
+  const ratioFormatter = new Intl.NumberFormat('ja-JP', {style: 'percent', maximumFractionDigits: 2});
 
   return (
     <SubtitleCard className="subtitle-detail-card" subtitle={s} detail>
@@ -161,7 +162,9 @@ function Detail({subtitle: s}: {subtitle: Subtitle}) {
               <CardHeader title="DropInfo" />
                 <CardContent component="dl">
                   <dt>ドロップ率</dt>
-                  <dd>{isNaN(dropRatio) ? '-' : dropRatioFormatter.format(dropRatio)}</dd>
+                  <dd>{isNaN(dropRatio) ? '-' : ratioFormatter.format(dropRatio)}</dd>
+                  <dt>スクランブル率</dt>
+                  <dd>{isNaN(scramblingRatio) ? '-' : ratioFormatter.format(scramblingRatio)}</dd>
                 </CardContent>
               </Card>
             : <></>

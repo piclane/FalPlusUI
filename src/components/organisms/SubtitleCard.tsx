@@ -129,6 +129,7 @@ export default function SubtitleCard({subtitle: s, detail, hover, sx, className,
             ? 'data:image/gif;base64,R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs='
             : (s.thumbnailUri ?? '/images/recorded/no-thumbnail-img.png')
           }
+          loading="lazy"
           alt="thumbnail" />
         {s.fileStatus === 'RECORDING'
           ? <Videocam className="play-watermark always" />

@@ -1,4 +1,5 @@
 export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -44,44 +45,44 @@ export interface CmEdit {
   __typename?: 'CmEdit';
   /** CM カット閾値 */
   detectThreshold: CmEditDetectThreshold;
-  /** CMカットルール TS */
-  tsRule: CmEditRule;
   /** CMカットルール MP4 */
   mp4Rule: CmEditRule;
+  /** CMカットルール TS */
+  tsRule: CmEditRule;
 }
 
 /** CM カット閾値 */
 export type CmEditDetectThreshold =
-  /** オフ */
-  | 'OFF'
+  /** 強 */
+  | 'HIGH'
   /** 弱 */
   | 'LOW'
   /** 中 */
   | 'MEDIUM'
-  /** 強 */
-  | 'HIGH';
+  /** オフ */
+  | 'OFF';
 
 /** CM カットルール */
 export type CmEditRule =
-  /** 編集しない */
-  | 'DO_NOTHING'
+  /** チャプタ追加 */
+  | 'ADD_CHAPTERS'
   /** 本編のみ (CMカット) */
   | 'DELETE_CM'
+  /** 編集しない */
+  | 'DO_NOTHING'
   /** CMのみ (本編カット) */
   | 'LEAVE_ONLY_CM'
   /** 本編+CM(同尺並べ替え) */
-  | 'SORT_CM'
-  /** チャプタ追加 */
-  | 'ADD_CHAPTERS';
+  | 'SORT_CM';
 
 /** 放送動画削除入力 */
 export interface DeleteSubtitleVideoInput {
   /** 放送ID */
-  pId?: Maybe<Scalars['Int']>;
+  pId?: InputMaybe<Scalars['Int']>;
+  /** 物理削除の場合 true そうでない場合 false */
+  physical?: InputMaybe<Scalars['Boolean']>;
   /** 動画ファイルの種別 */
   videoTypes: Array<VideoType>;
-  /** 物理削除の場合 true そうでない場合 false */
-  physical?: Maybe<Scalars['Boolean']>;
 }
 
 /** 種別 */
@@ -90,10 +91,10 @@ export type DigitalStationBand =
   | 'BS'
   /** CS デジタル */
   | 'CS'
-  /** 地上波デジタル */
-  | 'TERRESTRIAL'
   /** ラジオ */
   | 'RADIO'
+  /** 地上波デジタル */
+  | 'TERRESTRIAL'
   /** 未定義 */
   | 'UNDEFINED';
 
@@ -116,78 +117,77 @@ export interface DiskInfo {
 /** パケット識別子ごとのドロップ情報 */
 export interface DropInfoDetail {
   __typename?: 'DropInfoDetail';
-  /** パケット識別子 */
-  pid?: Maybe<Scalars['Int']>;
-  /** パケット数 */
-  total: Scalars['Int'];
   /** ドロップしたパケット数 */
   drop: Scalars['Int'];
+  /** パケット識別子 */
+  pid?: Maybe<Scalars['Int']>;
   /** スクランブルされているパケット数 */
   scrambling: Scalars['Int'];
+  /** パケット数 */
+  total: Scalars['Int'];
 }
 
 /** ドロップ情報概要 */
 export interface DropInfoSummary {
   __typename?: 'DropInfoSummary';
-  /** 全パケット数 */
-  totalSum: Scalars['Int'];
   /** 全ドロップしたパケット数 */
   dropSum: Scalars['Int'];
   /** 全スクランブルされているパケット数 */
   scramblingSum: Scalars['Int'];
+  /** 全パケット数 */
+  totalSum: Scalars['Int'];
 }
-
 
 /** ステータス */
 export type FileStatus =
-  /** 予約中(5分以上先) */
-  | 'RESERVING_LONG'
-  /** 予約中(5分以内) */
-  | 'RESERVING_SHORT'
+  /** 全完了 */
+  | 'ALL_COMPLETE'
+  /** 静止画キャプ終了 */
+  | 'CAPEND'
+  /** 静止画キャプ中 */
+  | 'CAPTURE'
+  /** MPEG2録画終了 */
+  | 'RECEND'
   /** 録画中 */
   | 'RECORDING'
   /** TSSplit中 */
   | 'REC_TS_SPLITTING'
-  /** MPEG2録画終了 */
-  | 'RECEND'
-  /** 静止画キャプチャ待 */
-  | 'WAITING_CAPTURE'
-  /** 静止画キャプ中 */
-  | 'CAPTURE'
-  /** 静止画キャプ終了 */
-  | 'CAPEND'
+  /** 予約中(5分以上先) */
+  | 'RESERVING_LONG'
+  /** 予約中(5分以内) */
+  | 'RESERVING_SHORT'
   /** サムネイル作成済み(.THM) */
   | 'THM_CREATE'
-  /** トラコン待 */
-  | 'WAITING_TRANSCODE'
-  /** トラコン中:TSsplit */
-  | 'TRANSCODE_TS_SPLITTING'
-  /** トラコン中:H264 */
-  | 'TRANSCODE_FFMPEG'
-  /** トラコン中:WAVE */
-  | 'TRANSCODE_WAVE'
   /** トラコン中:AAC */
   | 'TRANSCODE_AAC'
-  /** トラコン中:MP4Box */
-  | 'TRANSCODE_MP4BOX'
   /** トラコン中:ATOM */
   | 'TRANSCODE_ATOM'
   /** トラコン完了 */
   | 'TRANSCODE_COMPLETE'
+  /** 変換不能 */
+  | 'TRANSCODE_FAILED'
+  /** トラコン中:H264 */
+  | 'TRANSCODE_FFMPEG'
+  /** トラコン中:MP4Box */
+  | 'TRANSCODE_MP4BOX'
+  /** トラコン中:TSsplit */
+  | 'TRANSCODE_TS_SPLITTING'
+  /** トラコン中:WAVE */
+  | 'TRANSCODE_WAVE'
+  /** 静止画キャプチャ待 */
+  | 'WAITING_CAPTURE'
   /** HDトラコン待機中 */
   | 'WAITING_HD_TRANSCODE'
-  /** 全完了 */
-  | 'ALL_COMPLETE'
-  /** 変換不能 */
-  | 'TRANSCODE_FAILED';
+  /** トラコン待 */
+  | 'WAITING_TRANSCODE';
 
 /** キーワードグループ */
 export interface KeywordGroup {
   __typename?: 'KeywordGroup';
-  /** キーワードグループ ID */
-  keywordGroupId: Scalars['Int'];
   /** キーワード */
   keyword: Scalars['String'];
+  /** キーワードグループ ID */
+  keywordGroupId: Scalars['Int'];
 }
 
 /** キーワードグループクエリ入力 */
@@ -197,16 +197,25 @@ export interface KeywordGroupQueryInput {
    * 録画が存在しないキーワードグループを取得する場合 false
    * 両方のキーワードグループを取得する場合 null
    */
-  hasRecording?: Maybe<Scalars['Boolean']>;
+  hasRecording?: InputMaybe<Scalars['Boolean']>;
   /** キーワード (部分一致) */
-  keywordContains?: Maybe<Scalars['String']>;
+  keywordContains?: InputMaybe<Scalars['String']>;
 }
-
-
-
 
 export interface Mutation {
   __typename?: 'Mutation';
+  /**
+   * 放送の動画ファイルを削除します
+   * @param input 放送動画削除入力
+   */
+  deleteSubtitleVideo?: Maybe<Scalars['Void']>;
+  /** トランスコードを開始します */
+  startTranscode?: Maybe<Scalars['Void']>;
+  /**
+   * チャンネルを更新します
+   * @param input チャンネル更新入力
+   */
+  updateStation?: Maybe<Station>;
   /**
    * 放送を更新します
    * @param input 放送更新入力
@@ -219,18 +228,16 @@ export interface Mutation {
    * @param video 動画ファイル
    */
   uploadSubtitleVideo: Subtitle;
-  /**
-   * 放送の動画ファイルを削除します
-   * @param input 放送動画削除入力
-   */
-  deleteSubtitleVideo?: Maybe<Scalars['Void']>;
-  /**
-   * チャンネルを更新します
-   * @param input チャンネル更新入力
-   */
-  updateStation?: Maybe<Station>;
-  /** トランスコードを開始します */
-  startTranscode?: Maybe<Scalars['Void']>;
+}
+
+
+export interface MutationDeleteSubtitleVideoArgs {
+  input: Array<DeleteSubtitleVideoInput>;
+}
+
+
+export interface MutationUpdateStationArgs {
+  input?: InputMaybe<StationUpdateInput>;
 }
 
 
@@ -244,90 +251,64 @@ export interface MutationUploadSubtitleVideoArgs {
   video: Scalars['Upload'];
 }
 
-
-export interface MutationDeleteSubtitleVideoArgs {
-  input: Array<DeleteSubtitleVideoInput>;
-}
-
-
-export interface MutationUpdateStationArgs {
-  input?: Maybe<StationUpdateInput>;
-}
-
-
 /** 番組 */
 export interface Program {
   __typename?: 'Program';
+  /** アスペクト比 */
+  aspect?: Maybe<Scalars['Int']>;
+  /** 番組開始時期 */
+  firstLight?: Maybe<Scalars['LocalDate']>;
+  /** タイトル (短縮) */
+  shortTitle: Scalars['String'];
   /** プライマリキー */
   tId: Scalars['Int'];
   /** タイトル */
   title: Scalars['String'];
-  /** 番組開始時期 */
-  firstLight?: Maybe<Scalars['LocalDate']>;
-  /** アスペクト比 */
-  aspect?: Maybe<Scalars['Int']>;
-  /** タイトル (短縮) */
-  shortTitle: Scalars['String'];
-  /** タイトル (読み) */
-  titleYomi: Scalars['String'];
   /** タイトル (英語) */
   titleEn: Scalars['String'];
+  /** タイトル (読み) */
+  titleYomi: Scalars['String'];
 }
 
 /** 番組クエリ入力 */
 export interface ProgramQueryInput {
   /** 番組開始時期の最小値 */
-  firstLightAfter?: Maybe<Scalars['LocalDate']>;
+  firstLightAfter?: InputMaybe<Scalars['LocalDate']>;
   /** 番組開始時期の最大値 */
-  firstLightBefore?: Maybe<Scalars['LocalDate']>;
-  /** 番組タイトル (部分一致) */
-  titleContains?: Maybe<Scalars['String']>;
+  firstLightBefore?: InputMaybe<Scalars['LocalDate']>;
   /**
    * 録画が存在する番組を取得する場合 true
    * 録画が存在しない番組を取得する場合 false
    * 両方の番組を取得する場合 null
    */
-  hasRecording?: Maybe<Scalars['Boolean']>;
+  hasRecording?: InputMaybe<Scalars['Boolean']>;
+  /** 番組タイトル (部分一致) */
+  titleContains?: InputMaybe<Scalars['String']>;
 }
 
 /** 番組取得結果 */
 export interface ProgramResult {
   __typename?: 'ProgramResult';
-  /** 検索の先頭からのオフセット */
-  offset: Scalars['Int'];
-  /** 検索結果の最大取得件数 */
-  limit: Scalars['Int'];
-  /** 総行数 */
-  total: Scalars['Int'];
   /** ページのデータ */
   data: Array<Program>;
+  /** 検索結果の最大取得件数 */
+  limit: Scalars['Int'];
+  /** 検索の先頭からのオフセット */
+  offset: Scalars['Int'];
+  /** 総行数 */
+  total: Scalars['Int'];
 }
 
 export interface Query {
   __typename?: 'Query';
-  /** API のバージョンを取得します */
-  version: Scalars['String'];
+  /** ディスク情報を取得します */
+  diskInfo: DiskInfo;
   /**
-   * 放送を取得します
-   *
-   * @param pId 放送 ID
-   */
-  subtitle?: Maybe<Subtitle>;
-  /**
-   * 放送を取得します
+   * キーワードグループを取得します
    *
    * @param query クエリ
-   * @param offset 検索の先頭からのオフセット
-   * @param limit 検索結果の最大取得件数
    */
-  subtitles: SubtitleResult;
-  /**
-   * 指定されたクエリにおける、指定された放送のオフセットを取得します
-   *
-   * @param query クエリ
-   * @param pId 放送 IS
-   */
-  subtitleOffset?: Maybe<Scalars['Int']>;
+  keywordGroups: Array<KeywordGroup>;
   /**
    * 番組を取得します
    *
@@ -343,13 +324,45 @@ export interface Query {
    */
   stations: StationResult;
   /**
-   * キーワードグループを取得します
+   * 放送を取得します
+   *
+   * @param pId 放送 ID
+   */
+  subtitle?: Maybe<Subtitle>;
+  /**
+   * 指定されたクエリにおける、指定された放送のオフセットを取得します
    *
    * @param query クエリ
+   * @param pId 放送 IS
    */
-  keywordGroups: Array<KeywordGroup>;
-  /** ディスク情報を取得します */
-  diskInfo: DiskInfo;
+  subtitleOffset?: Maybe<Scalars['Int']>;
+  /**
+   * 放送を取得します
+   *
+   * @param query クエリ
+   * @param offset 検索の先頭からのオフセット
+   * @param limit 検索結果の最大取得件数
+   */
+  subtitles: SubtitleResult;
+  /** API のバージョンを取得します */
+  version: Scalars['String'];
+}
+
+
+export interface QueryKeywordGroupsArgs {
+  query?: InputMaybe<KeywordGroupQueryInput>;
+}
+
+
+export interface QueryProgramsArgs {
+  limit?: Scalars['Int'];
+  offset: Scalars['Int'];
+  query?: InputMaybe<ProgramQueryInput>;
+}
+
+
+export interface QueryStationsArgs {
+  query?: InputMaybe<StationQueryInput>;
 }
 
 
@@ -358,67 +371,50 @@ export interface QuerySubtitleArgs {
 }
 
 
-export interface QuerySubtitlesArgs {
-  query?: Maybe<SubtitleQueryInput>;
-  offset: Scalars['Int'];
-  limit?: Scalars['Int'];
-}
-
-
 export interface QuerySubtitleOffsetArgs {
-  query?: Maybe<SubtitleQueryInput>;
   pId: Scalars['Int'];
+  query?: InputMaybe<SubtitleQueryInput>;
 }
 
 
-export interface QueryProgramsArgs {
-  query?: Maybe<ProgramQueryInput>;
-  offset: Scalars['Int'];
+export interface QuerySubtitlesArgs {
   limit?: Scalars['Int'];
-}
-
-
-export interface QueryStationsArgs {
-  query?: Maybe<StationQueryInput>;
-}
-
-
-export interface QueryKeywordGroupsArgs {
-  query?: Maybe<KeywordGroupQueryInput>;
+  offset: Scalars['Int'];
+  query?: InputMaybe<SubtitleQueryInput>;
 }
 
 /** 録画タイプ型 */
 export type RecordingType =
-  /** アニメ自動録画 */
-  | 'Program'
   /** EPG 録画 */
   | 'Epg'
   /** キーワード録画 */
-  | 'Keyword';
+  | 'Keyword'
+  /** アニメ自動録画 */
+  | 'Program';
 
 /** チャンネル */
 export interface Station {
   __typename?: 'Station';
-  /** チャンネルID */
-  stationId: Scalars['Int'];
-  /** 局名 */
-  stationName: Scalars['String'];
-  /** 不明 */
-  stationCallSign?: Maybe<Scalars['String']>;
-  /** 局の URL */
-  stationUri?: Maybe<Scalars['String']>;
-  /** ontvcode */
-  ontvcode?: Maybe<Scalars['String']>;
+  /** CM 検出閾値 */
+  cmEditDetectThreshold?: Maybe<CmEditDetectThreshold>;
   /** 物理チャンネル */
   digitalCh?: Maybe<Scalars['Int']>;
   /** 種別 */
   digitalStationBand?: Maybe<DigitalStationBand>;
   /** EPG 名 */
   epgName?: Maybe<Scalars['String']>;
+  /** ontvcode */
+  ontvcode?: Maybe<Scalars['String']>;
   /** 受信可否 */
   receiving: Scalars['Boolean'];
-  /** CM 検出閾値 */
-  cmEditDetectThreshold?: Maybe<CmEditDetectThreshold>;
+  /** 不明 */
+  stationCallSign?: Maybe<Scalars['String']>;
+  /** チャンネルID */
+  stationId: Scalars['Int'];
+  /** 局名 */
+  stationName: Scalars['String'];
+  /** 局の URL */
+  stationUri?: Maybe<Scalars['String']>;
 }
 
 /** チャンネルクエリ入力 */
@@ -428,163 +424,163 @@ export interface StationQueryInput {
    * 受信不能なチャンネルのみを取得する場合 false
    * すべてのチャンネルを取得する場合 null
    */
-  receivableStation?: Maybe<Scalars['Boolean']>;
+  receivableStation?: InputMaybe<Scalars['Boolean']>;
 }
 
 /** チャンネル取得結果 */
 export interface StationResult {
   __typename?: 'StationResult';
-  /** 総行数 */
-  total: Scalars['Int'];
   /** ページのデータ */
   data: Array<Station>;
+  /** 総行数 */
+  total: Scalars['Int'];
 }
 
 /** チャンネル更新入力 */
 export interface StationUpdateInput {
+  /** CM 検出閾値 */
+  cmEditDetectThreshold?: InputMaybe<CmEditDetectThreshold>;
+  /** 物理チャンネル */
+  digitalCh?: InputMaybe<Scalars['Int']>;
+  /** ontvcode */
+  ontvcode?: InputMaybe<Scalars['String']>;
+  /** 受信可否 */
+  receiving?: InputMaybe<Scalars['Boolean']>;
   /** チャンネルID */
   stationId: Scalars['Int'];
   /** 局名 */
-  stationName?: Maybe<Scalars['String']>;
-  /** ontvcode */
-  ontvcode?: Maybe<Scalars['String']>;
-  /** 物理チャンネル */
-  digitalCh?: Maybe<Scalars['Int']>;
-  /** 受信可否 */
-  receiving?: Maybe<Scalars['Boolean']>;
-  /** CM 検出閾値 */
-  cmEditDetectThreshold?: Maybe<CmEditDetectThreshold>;
+  stationName?: InputMaybe<Scalars['String']>;
 }
 
 /** 放送 */
 export interface Subtitle {
   __typename?: 'Subtitle';
-  /** 放送ID */
-  pId: Scalars['Int'];
-  /** 番組ID (foltia_program.tid に連結) */
-  tId: Scalars['Int'];
-  /** チャンネルID (foltia_station.stationid に連結) */
-  stationId: Scalars['Int'];
+  /** アスペクト比 */
+  aspect?: Maybe<Scalars['Int']>;
+  /** CM カット情報 */
+  cmEdit: CmEdit;
   /** 話数 */
   countNo?: Maybe<Scalars['Int']>;
-  /** サブタイトル */
-  subtitle?: Maybe<Scalars['String']>;
-  /** 放送開始日時 */
-  startDateTime: Scalars['LocalDateTime'];
+  /** パケット識別子ごとのドロップ情報 */
+  dropInfoDetail?: Maybe<Array<DropInfoDetail>>;
+  /** ドロップ情報概要 */
+  dropInfoSummary?: Maybe<DropInfoSummary>;
+  /** 放映尺 */
+  duration: Scalars['Duration'];
+  /** トランスコード品質 */
+  encodeSetting?: Maybe<TranscodeQuality>;
   /** 放送終了日時 */
   endDateTime: Scalars['LocalDateTime'];
-  /** 開始時刻オフセット (秒) */
-  startOffset: Scalars['Int'];
+  /** EPG 録画の場合、登録したユーザID そうでない場合 NULL */
+  epgAddedBy?: Maybe<Scalars['Int']>;
+  /** ステータス */
+  fileStatus?: Maybe<FileStatus>;
+  /** HD 動画ファイルへの URI */
+  hdVideoUri?: Maybe<Scalars['URI']>;
+  /** すべてのキーワードグループ */
+  keywordGroups?: Maybe<Array<KeywordGroup>>;
+  /** 最終更新日時 */
+  lastUpdate?: Maybe<Scalars['OffsetDateTime']>;
   /** 放映尺 (分) */
   lengthMin: Scalars['Int'];
   /** TS のファイル名 */
   m2pFilename?: Maybe<Scalars['String']>;
-  /** SD 動画ファイル名 */
-  pspFilename?: Maybe<Scalars['String']>;
-  /** EPG 録画の場合、登録したユーザID そうでない場合 NULL */
-  epgAddedBy?: Maybe<Scalars['Int']>;
-  /** 最終更新日時 */
-  lastUpdate?: Maybe<Scalars['OffsetDateTime']>;
-  /** ステータス */
-  fileStatus?: Maybe<FileStatus>;
-  /** アスペクト比 */
-  aspect?: Maybe<Scalars['Int']>;
-  /** トランスコード品質 */
-  encodeSetting?: Maybe<TranscodeQuality>;
   /** HD 動画ファイル名 */
   mp4hd?: Maybe<Scalars['String']>;
+  /** 放送ID */
+  pId: Scalars['Int'];
+  /** 番組 */
+  program: Program;
+  /** SD 動画ファイル名 */
+  pspFilename?: Maybe<Scalars['String']>;
+  /** 録画タイプ */
+  recordingType: RecordingType;
+  /** SD 動画ファイルへの URI */
+  sdVideoUri?: Maybe<Scalars['URI']>;
+  /** 放送開始日時 */
+  startDateTime: Scalars['LocalDateTime'];
+  /** 開始時刻オフセット (秒) */
+  startOffset: Scalars['Int'];
+  /** チャンネル */
+  station: Station;
+  /** チャンネルID (foltia_station.stationid に連結) */
+  stationId: Scalars['Int'];
+  /** サブタイトル */
+  subtitle?: Maybe<Scalars['String']>;
   /** しょぼいカレンダーフラグ */
   syobocalFlag: Array<SyobocalFlag>;
   /** しょぼいカレンダー修正回数 */
   syobocalRev?: Maybe<Scalars['Int']>;
-  /** 録画タイプ */
-  recordingType: RecordingType;
-  /** 放映尺 */
-  duration: Scalars['Duration'];
-  /** チャンネル */
-  station: Station;
-  /** 番組 */
-  program: Program;
-  /** すべてのキーワードグループ */
-  keywordGroups?: Maybe<Array<KeywordGroup>>;
-  /** TS 動画ファイルへの URI */
-  tsVideoUri?: Maybe<Scalars['URI']>;
-  /** SD 動画ファイルへの URI */
-  sdVideoUri?: Maybe<Scalars['URI']>;
-  /** HD 動画ファイルへの URI */
-  hdVideoUri?: Maybe<Scalars['URI']>;
-  /** ドロップ情報概要 */
-  dropInfoSummary?: Maybe<DropInfoSummary>;
-  /** パケット識別子ごとのドロップ情報 */
-  dropInfoDetail?: Maybe<Array<DropInfoDetail>>;
+  /** 番組ID (foltia_program.tid に連結) */
+  tId: Scalars['Int'];
   /** サムネイルの URI */
   thumbnailUri?: Maybe<Scalars['URI']>;
   /** 動画全体のサムネイルの URI */
   thumbnailUris?: Maybe<Array<Scalars['URI']>>;
-  /** CM カット情報 */
-  cmEdit: CmEdit;
+  /** TS 動画ファイルへの URI */
+  tsVideoUri?: Maybe<Scalars['URI']>;
 }
 
 /** 放送クエリ入力 */
 export interface SubtitleQueryInput {
-  /** 番組ID */
-  tId?: Maybe<Scalars['Int']>;
-  /** 録画タイプ */
-  recordingTypes?: Maybe<Array<RecordingType>>;
-  /**
-   * 受信可能なチャンネルの放送のみを取得する場合 true
-   * 受信不能なチャンネルの放送のみを取得する場合 false
-   * すべての放送を取得する場合 null
-   */
-  receivableStation?: Maybe<Scalars['Boolean']>;
+  /** ソート方向 */
+  direction?: InputMaybe<Direction>;
   /**
    * 録画が存在する放送を取得する場合 true
    * 録画が存在しない放送を取得する場合 false
    * 両方の放送を取得する場合 null
    */
-  hasRecording?: Maybe<Scalars['Boolean']>;
+  hasRecording?: InputMaybe<Scalars['Boolean']>;
+  /** キーワードグループID */
+  keywordGroupId?: InputMaybe<Scalars['Int']>;
   /**
    * hasRecording=true の場合に、録画中の放送を「録画が存在する」とみなす場合 true
    * そうでない場合 false もしくは null
    */
-  nowRecording?: Maybe<Scalars['Boolean']>;
-  /** キーワードグループID */
-  keywordGroupId?: Maybe<Scalars['Int']>;
+  nowRecording?: InputMaybe<Scalars['Boolean']>;
+  /**
+   * 受信可能なチャンネルの放送のみを取得する場合 true
+   * 受信不能なチャンネルの放送のみを取得する場合 false
+   * すべての放送を取得する場合 null
+   */
+  receivableStation?: InputMaybe<Scalars['Boolean']>;
+  /** 録画タイプ */
+  recordingTypes?: InputMaybe<Array<RecordingType>>;
   /** サブタイトル (部分一致) */
-  subtitleContains?: Maybe<Scalars['String']>;
-  /** ソート方向 */
-  direction?: Maybe<Direction>;
+  subtitleContains?: InputMaybe<Scalars['String']>;
+  /** 番組ID */
+  tId?: InputMaybe<Scalars['Int']>;
 }
 
 /** 放送取得結果 */
 export interface SubtitleResult {
   __typename?: 'SubtitleResult';
-  /** 検索の先頭からのオフセット */
-  offset: Scalars['Int'];
-  /** 検索結果の最大取得件数 */
-  limit: Scalars['Int'];
-  /** 総行数 */
-  total: Scalars['Int'];
   /** ページのデータ */
   data: Array<Subtitle>;
+  /** 検索結果の最大取得件数 */
+  limit: Scalars['Int'];
+  /** 検索の先頭からのオフセット */
+  offset: Scalars['Int'];
+  /** 総行数 */
+  total: Scalars['Int'];
 }
 
 /** 放送更新入力 */
 export interface SubtitleUpdateInput {
+  /** トランスコード品質 */
+  encodeSetting?: InputMaybe<TranscodeQuality>;
+  /** ステータス */
+  fileStatus?: InputMaybe<FileStatus>;
+  /** TS のファイル名 */
+  m2pFilename?: InputMaybe<Scalars['String']>;
+  /** HD 動画ファイル名 */
+  mp4hd?: InputMaybe<Scalars['String']>;
   /** 放送ID */
   pId: Scalars['Int'];
-  /** サブタイトル */
-  subtitle?: Maybe<Scalars['String']>;
-  /** TS のファイル名 */
-  m2pFilename?: Maybe<Scalars['String']>;
   /** SD 動画ファイル名 */
-  pspFilename?: Maybe<Scalars['String']>;
-  /** ステータス */
-  fileStatus?: Maybe<FileStatus>;
-  /** トランスコード品質 */
-  encodeSetting?: Maybe<TranscodeQuality>;
-  /** HD 動画ファイル名 */
-  mp4hd?: Maybe<Scalars['String']>;
+  pspFilename?: InputMaybe<Scalars['String']>;
+  /** サブタイトル */
+  subtitle?: InputMaybe<Scalars['String']>;
 }
 
 /**
@@ -594,40 +590,37 @@ export interface SubtitleUpdateInput {
 export type SyobocalFlag =
   /** 注 */
   | 'Attention'
-  /** 新番組 */
-  | 'New'
   /** 最終回 */
   | 'End'
+  /** 新番組 */
+  | 'New'
   /** 再放送 */
   | 'Rerun';
 
 /** トランスコード品質 */
 export type TranscodeQuality =
+  /** SD + HD */
+  | 'BOTH'
+  /** HD */
+  | 'HD'
   /** 変換しない */
   | 'NONE'
   /** SD のみ */
-  | 'SD'
-  /** HD */
-  | 'HD'
-  /** SD + HD */
-  | 'BOTH';
-
-
+  | 'SD';
 
 /** 放送動画アップロード入力 */
 export interface UploadSubtitleVideoInput {
   /** 放送ID */
-  pId?: Maybe<Scalars['Int']>;
+  pId?: InputMaybe<Scalars['Int']>;
   /** 動画ファイルの種別 */
   videoType: VideoType;
 }
 
 /** 動画ファイルの種別を表現します */
 export type VideoType =
-  /** 録画ファイル */
-  | 'TS'
+  /** HD 画質 */
+  | 'HD'
   /** SD 画質 */
   | 'SD'
-  /** HD 画質 */
-  | 'HD';
-
+  /** 録画ファイル */
+  | 'TS';
