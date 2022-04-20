@@ -14,14 +14,16 @@ import {
   CardMedia,
   CircularProgress,
   createTheme,
+  IconButton,
   Link,
+  SvgIcon,
   ThemeProvider,
   Typography,
 } from "@mui/material";
 import "./Player.scss";
 import {normalizeTitle, safeNormalizeTitle} from "@/utils/SubtitleUtil";
-import {Error, PlayCircleOutline, QuestionMark} from "@mui/icons-material";
-import {isDesktop, isMobile, isIOS} from 'react-device-detect';
+import {Error, Pause, PlayArrow, PlayCircleOutline, QuestionMark} from "@mui/icons-material";
+import {isDesktop, isIOS} from 'react-device-detect';
 import AppTopHeader from "@/components/atoms/AppTopHeader";
 import {
   buildSearchParams,
@@ -29,6 +31,7 @@ import {
   useSearchQuery,
   useSubtitleQueryInput
 } from "@/components/pages/recording/list/SearchParams";
+import {ReactComponent as BackwardIcon} from '@/assets/icon_forward.svg';
 
 const GET_SUBTITLE = gql`
     query GetSubtitle(
@@ -113,8 +116,64 @@ const headerTheme = createTheme({
           borderRadius: '0',
           boxShadow: "none",
         }
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: 'white'
+        }
+      },
+      variants: [{
+        props: { variant: 'h1' },
+        style: {
+          fontSize: "3vmax",
+          fontWeight: "bold",
+          borderBottom: '1px solid rgba(255,255,255,.4)',
+          marginBottom: "10px",
+          paddingBottom: "5px",
+        }
+      }, {
+        props: { variant: 'caption' },
+        style: {
+          fontSize: "1.3vmax"
+        }
+      }]
+    }
+  },
+});
+
+const timeControlTheme = createTheme({
+  components: {
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          position: 'relative',
+          color: 'white',
+        }
       }
     },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          fontSize: 'calc(min(20vw, 60px))',
+          filter: 'drop-shadow(3px 3px 5px rgba(0,0,0,.7))',
+        }
+      }
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          position: 'absolute',
+          top: 'calc(50% + 1px)',
+          left: '50%',
+          transform: 'translateX(-50%) translateY(-50%)',
+          fontFamily: "'Akshar', sans-serif",
+          fontSize: '25px',
+          textShadow: '1px 1px 3px black'
+        }
+      }
+    }
   }
 });
 
@@ -214,14 +273,18 @@ function useQueryParams() {
   }), [searchParams, params]);
 }
 
-type PlayerState = "stopped" | "playing";
+type PlayerState = "ready" | "stopped" | "playing";
 
-export default function Player() {
+export interface PlayerProps {
+  inactivityTimeout?: number;
+}
+
+export default function Player(props: PlayerProps) {
+  const inactivityTimeout = props?.inactivityTimeout ?? (isDesktop ? 2000 : 10000);
   const client = useApolloClient();
   const navigate = useNavigate();
-  const [state, setState] = useState<PlayerState>("stopped");
-  const [mouseMoving, setMouseMoving] = useState<boolean>(true);
-  const [mouseMovingTimerId, setMouseMovingTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [state, setState] = useState<PlayerState>("ready");
+  const [isUserActive, setUserActive] = useState<boolean>(true);
   const [nextSubtitle, setNextSubtitle] = useState<Subtitle | null>(null);
   const [timeRemainingSec, setTimeRemainingSec] = useState<number>(999999);
   const [player, setPlayer] = useState<videojs.Player | null>(null);
@@ -236,7 +299,7 @@ export default function Player() {
     variables: {
       pId: pId
     },
-    onCompleted(data: {subtitle: Subtitle}) {
+    onCompleted(data) {
       const s = data.subtitle;
       setPlaying({
         src: s.hdVideoUri ?? s.sdVideoUri ?? '',
@@ -283,15 +346,16 @@ export default function Player() {
   }
 
   const titles = safeNormalizeTitle(data?.subtitle ?? null);
-  const handleMouseMoving = () => {
-    setMouseMoving(true);
-    if (mouseMovingTimerId !== null) {
-      clearTimeout(mouseMovingTimerId);
+  const forwardTime = (time: number) => {
+    if(!player) {
+      return;
     }
-    const timerId = setTimeout(() => {
-      setMouseMoving(false);
-    }, 2000);
-    setMouseMovingTimerId(timerId);
+    const d = player.duration();
+    let t = player.currentTime() + time;
+    if(t < 0) t = 0;
+    if(t > d) t = d;
+    player.currentTime(t);
+    player?.userActive(true);
   };
   const onReady = async (player: videojs.Player) => {
     setPlayer(player);
@@ -301,12 +365,18 @@ export default function Player() {
         player.muted(false);
       }
     });
-    player.on('play', _ => {
+    player.on('play', () => {
       setState("playing");
-      handleMouseMoving();
+      player?.userActive(true);
     });
-    player.on('pause', _ => {
+    player.on('pause', () => {
       setState("stopped");
+    });
+    player.on('useractive', () => {
+      setUserActive(true);
+    });
+    player.on('userinactive', () => {
+      setUserActive(false);
     });
     player.on('timeupdate', function(this: videojs.Player) {
       const duration = this.duration();
@@ -334,24 +404,12 @@ export default function Player() {
       <Box
         className={[
           'player', state,
-          state === 'stopped' || mouseMoving ? 'show-overlay' : '',
+          state === 'stopped' || isUserActive ? 'show-overlay' : '',
           timeRemainingSec < 15 ? 'show-next-video' : ''
         ].join(' ')}
         onMouseMove={() => {
           if(isDesktop) {
-            handleMouseMoving();
-          }
-        }}
-        onTouchStart={() => {
-          if(isMobile) {
-            if(mouseMoving) {
-              setMouseMoving(false);
-              if (mouseMovingTimerId !== null) {
-                clearTimeout(mouseMovingTimerId);
-              }
-            } else {
-              handleMouseMoving();
-            }
+            player?.userActive(true);
           }
         }}
       >
@@ -361,18 +419,28 @@ export default function Player() {
               position="static"
             />
             <CardContent>
-              <Typography sx={{
-                fontSize: "3vmax",
-                fontWeight: "bold",
-                borderBottom: '1px solid rgba(255,255,255,.4)',
-                marginBottom: "10px",
-                paddingBottom: "5px",
-              }}>{ titles.title }</Typography>
-              <Typography sx={{
-                fontSize: "1.3vmax"
-              }}>{ titles.subtitle }</Typography>
+              <Typography variant="h1">{ titles.title }</Typography>
+              <Typography variant="caption">{ titles.subtitle }</Typography>
             </CardContent>
           </Card>
+        </ThemeProvider>
+        <ThemeProvider theme={timeControlTheme}>
+          <Box className="time-controls" onTouchStart={e => e.stopPropagation()}>
+            <IconButton onClick={() => forwardTime(-15)}>
+              <SvgIcon component={BackwardIcon} viewBox="6 6 20 20" sx={{ transform: 'scale(-1, 1)' }} />
+              <Typography>15</Typography>
+            </IconButton>
+            <IconButton onClick={() => player?.pause()} style={{ display: state === 'playing' ? 'inline' : 'none' }}>
+              <Pause />
+            </IconButton>
+            <IconButton onClick={() => player?.play()} style={{ display: state === 'stopped' ? 'inline' : 'none' }}>
+              <PlayArrow />
+            </IconButton>
+            <IconButton onClick={() => forwardTime(15)}>
+              <SvgIcon component={BackwardIcon} viewBox="6 6 20 20" />
+              <Typography>15</Typography>
+            </IconButton>
+          </Box>
         </ThemeProvider>
         {(() => {
           if(!nextSubtitle) {
@@ -411,6 +479,7 @@ export default function Player() {
           autoplay
           controls
           playsInline
+          inactivityTimeout={inactivityTimeout}
           muted={isIOS}
           onReady={onReady}
           preload="metadata"
