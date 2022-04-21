@@ -19,7 +19,7 @@ if [ "$API_VERSION" != "$TARGET_API_VERSION" ] && \
   rm fapi.tar.gz
   cd "$(find . -name 'foltia_api-*' | sort -Vr | head -n 1)"
   ./install.sh
-  popd
+  popd >/dev/null
 fi
 
 # FAL+ インストール
@@ -42,7 +42,7 @@ cat index.html \
 chown foltia. index.html.new
 chmod 644 index.html.new
 \mv -f index.html.new index.html
-popd
+popd >/dev/null
 
 # foltialib.php 修正
 pushd "${TARGET_DIR}/php/phpcommon" >/dev/null
@@ -55,7 +55,7 @@ cat foltialib.php \
 chown foltia. foltialib.php.new
 chmod 644 foltialib.php.new
 \mv -f foltialib.php.new foltialib.php
-popd
+popd >/dev/null
 
 # 画像のコピー
 ## btn_falp.png

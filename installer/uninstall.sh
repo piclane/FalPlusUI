@@ -16,7 +16,7 @@ cat foltialib.php \
 chown foltia. foltialib.php.new
 chmod 644 foltialib.php.new
 \mv -f foltialib.php.new foltialib.php
-popd
+popd >/dev/null
 
 # index.html を元に戻す
 pushd "${TARGET_DIR}/php" >/dev/null
@@ -26,7 +26,7 @@ cat index.html \
 chown foltia. index.html.new
 chmod 644 index.html.new
 \mv -f index.html.new index.html
-popd
+popd >/dev/null
 
 # httpd の設定を元に戻す
 \rm -f /etc/httpd/conf.d/falp.conf
