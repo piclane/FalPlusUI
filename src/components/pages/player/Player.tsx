@@ -357,9 +357,20 @@ export default function Player(props: PlayerProps) {
     player.currentTime(t);
     player?.userActive(true);
   };
+  const deferUserInactivation = (e: React.MouseEvent) => {
+    player?.reportUserActivity(e.nativeEvent);
+    player?.options({
+      inactivityTimeout: 0
+    });
+  };
+  const beginUserInactivation = () => {
+    player?.options({
+      inactivityTimeout
+    });
+  };
   const onReady = async (player: videojs.Player) => {
     setPlayer(player);
-    player.one('canplay', _ => {
+    player.one('canplay', () => {
       player.currentTime(time ?? 0);
       if(isIOS) {
         player.muted(false);
@@ -407,9 +418,9 @@ export default function Player(props: PlayerProps) {
           state === 'stopped' || isUserActive ? 'show-overlay' : '',
           timeRemainingSec < 15 ? 'show-next-video' : ''
         ].join(' ')}
-        onMouseMove={() => {
+        onMouseMove={(e: React.MouseEvent) => {
           if(isDesktop) {
-            player?.userActive(true);
+            player?.reportUserActivity(e.nativeEvent);
           }
         }}
       >
@@ -417,6 +428,8 @@ export default function Player(props: PlayerProps) {
           <Card className="subtitle-info">
             <AppTopHeader
               position="static"
+              onMouseEnter={deferUserInactivation}
+              onMouseLeave={beginUserInactivation}
             />
             <CardContent>
               <Typography variant="h1">{ titles.title }</Typography>
@@ -425,7 +438,12 @@ export default function Player(props: PlayerProps) {
           </Card>
         </ThemeProvider>
         <ThemeProvider theme={timeControlTheme}>
-          <Box className="time-controls" onTouchStart={e => e.stopPropagation()}>
+          <Box
+            className="time-controls"
+            onTouchStart={e => e.stopPropagation()}
+            onMouseEnter={deferUserInactivation}
+            onMouseLeave={beginUserInactivation}
+          >
             <IconButton onClick={() => forwardTime(-15)}>
               <SvgIcon component={BackwardIcon} viewBox="6 6 20 20" sx={{ transform: 'scale(-1, 1)' }} />
               <Typography>15</Typography>
@@ -436,7 +454,7 @@ export default function Player(props: PlayerProps) {
             <IconButton onClick={() => player?.play()} style={{ display: state === 'stopped' ? 'inline' : 'none' }}>
               <PlayArrow />
             </IconButton>
-            <IconButton onClick={() => forwardTime(15)}>
+            <IconButton onClick={() => forwardTime(15)} >
               <SvgIcon component={BackwardIcon} viewBox="6 6 20 20" />
               <Typography>15</Typography>
             </IconButton>
@@ -449,7 +467,11 @@ export default function Player(props: PlayerProps) {
           const titles = normalizeTitle(nextSubtitle);
           return (
             <ThemeProvider theme={nextVideoTheme}>
-              <Card className="next-video">
+              <Card
+                className="next-video"
+                onMouseEnter={deferUserInactivation}
+                onMouseLeave={beginUserInactivation}
+              >
                 <CardHeader
                   title="次の動画"
                   subheader={<>
