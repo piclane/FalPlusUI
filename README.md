@@ -34,7 +34,7 @@ Foltia ANIME LOCKER 用の拡張 UI
 
 Foltia ANIME LOCKER に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
 ```bash
-$ curl -SsL 'https://raw.githubusercontent.com/piclane/FoltiaUI/develop/install.sh' | bash
+$ curl -SsL 'https://raw.githubusercontent.com/piclane/FoltiaUI/develop/easy_install.sh' | bash
 ```
 
 上記の方法が上手く行かない場合は以下を試してみて下さい。
