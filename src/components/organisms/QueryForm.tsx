@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React from "react";
 
-import QuerySelect from "@/components/pages/recording/list/QuerySelect";
+import QuerySelect from "@/components/organisms/QuerySelect";
 import {Sort} from "@mui/icons-material";
 import {useSearchOrder, useSearchQuery} from "@/components/pages/recording/list/SearchParams";
 

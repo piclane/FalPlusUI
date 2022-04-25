@@ -399,7 +399,7 @@ export default function RecordingPlayer(props: PlayerProps) {
   return (
     <>
       {loading || !data
-      ? <Box className="player loading">
+      ? <Box className="recording-player player loading">
           <Backdrop
             sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
             open>
@@ -408,13 +408,13 @@ export default function RecordingPlayer(props: PlayerProps) {
         </Box>
       : <></>}
       {error
-      ? <Box className="player error">
+      ? <Box className="recording-player player error">
           <Error className="icon" />
         </Box>
       : <></>}
       <Box
         className={[
-          'player', state,
+          'recording-player', 'player', state,
           state === 'stopped' || isUserActive ? 'show-overlay' : '',
           timeRemainingSec < 15 ? 'show-next-video' : ''
         ].join(' ')}

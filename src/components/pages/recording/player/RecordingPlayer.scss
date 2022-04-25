@@ -1,39 +1,6 @@
-.player {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5000;
-  background-color: black;
-  color: white;
+@import "src/components/atoms/Player";
 
-  .subtitle-info {
-    z-index: 1;
-    background: linear-gradient(to bottom, black 0%, black 10%, transparent);
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 50%;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.5s ease;
-
-    .app-top-header {
-      pointer-events: none;
-    }
-  }
-
-  &.show-overlay .subtitle-info {
-    opacity: 1;
-    transition: all 0.5s ease-out;
-
-    .app-top-header {
-      pointer-events: all;
-    }
-  }
-
+.recording-player {
   /*********************************************************************************************************************
    * T I M E   C O N T R O L S
    *********************************************************************************************************************/
@@ -125,23 +92,5 @@
     transition: opacity 1s ease-out;
   }
 
-  /*********************************************************************************************************************
-   * E R R O R
-   *********************************************************************************************************************/
 
-  &.error {
-    z-index: 5001;
-
-    .icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateX(-50%) translateY(-50%);
-      font-size: 30vw;
-    }
-  }
-
-  &.loading {
-    z-index: 5001;
-  }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import {Box, Divider, Grid} from "@mui/material";
 import SubtitleCard from "@/components/organisms/SubtitleCard";
-import QueryForm from "@/components/pages/recording/list/QueryForm";
+import QueryForm from "@/components/organisms/QueryForm";
 import AppHeader from "@/components/atoms/AppHeader";
 import './RecordingList.scss';
 import DiskInfo from "@/components/pages/recording/list/DiskInfo";
