@@ -15,5 +15,6 @@ config:
     LocalDateTime: string
     OffsetDateTime: string
     URI: string
+    Job: string
     Long: number
     Void: void

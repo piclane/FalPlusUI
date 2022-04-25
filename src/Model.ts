@@ -15,6 +15,8 @@ export interface Scalars {
    * 例: PT8H6M12.345S
    */
   Duration: string;
+  /** Job 型 */
+  Job: string;
   /**
    * ローカルな日付型
    * 例: 2020-06-04
@@ -79,8 +81,6 @@ export type CmEditRule =
 export interface DeleteSubtitleVideoInput {
   /** 放送ID */
   pId?: InputMaybe<Scalars['Int']>;
-  /** 物理削除の場合 true そうでない場合 false */
-  physical?: InputMaybe<Scalars['Boolean']>;
   /** 動画ファイルの種別 */
   videoTypes: Array<VideoType>;
 }
@@ -136,6 +136,68 @@ export interface DropInfoSummary {
   scramblingSum: Scalars['Int'];
   /** 全パケット数 */
   totalSum: Scalars['Int'];
+}
+
+/** EPG */
+export interface Epg {
+  __typename?: 'Epg';
+  /** カテゴリ */
+  category: EpgCategory;
+  /** 説明 */
+  description: Scalars['String'];
+  /** 終了日時 */
+  endDateTime: Scalars['LocalDateTime'];
+  /** EPG ID */
+  epgId: Scalars['Long'];
+  /** onTvChannel (onTvCode) */
+  onTvChannel: Scalars['String'];
+  /** 開始日時 */
+  startDateTime: Scalars['LocalDateTime'];
+  /** 番組名 */
+  title: Scalars['String'];
+}
+
+/** EPG カテゴリー */
+export type EpgCategory =
+  /** アニメ・特撮 */
+  | 'ANIME'
+  /** 映画 */
+  | 'CINEMA'
+  /** ドキュメンタリー・教養 */
+  | 'DOCUMENTARY'
+  /** ドラマ */
+  | 'DRAMA'
+  /** 教育 */
+  | 'EDUCATION'
+  /** その他 */
+  | 'ETC'
+  /** 趣味・実用 */
+  | 'HOBBY'
+  /** 情報 */
+  | 'INFORMATION'
+  /** キッズ */
+  | 'KIDS'
+  /** 音楽 */
+  | 'MUSIC'
+  /** ニュース・報道 */
+  | 'NEWS'
+  /** スポーツ */
+  | 'SPORTS'
+  /** 演劇 */
+  | 'STAGE'
+  /** バラエティ */
+  | 'VARIETY';
+
+/** EPG クエリ入力 */
+export interface EpgQueryInput {
+  /** 指定された日時より後に終わる */
+  endAfter?: InputMaybe<Scalars['LocalDateTime']>;
+  /** 指定された日時より前に終わる */
+  endBefore?: InputMaybe<Scalars['LocalDateTime']>;
+  /** 指定された日時より後に始まる */
+  startAfter?: InputMaybe<Scalars['LocalDateTime']>;
+  /** 指定された日時より前に始まる */
+  startBefore?: InputMaybe<Scalars['LocalDateTime']>;
 }
 
 /** ステータス */
@@ -196,34 +258,133 @@ export interface KeywordGroupQueryInput {
    * 録画が存在するキーワードグループを取得する場合 true
    * 録画が存在しないキーワードグループを取得する場合 false
    * 両方のキーワードグループを取得する場合 null
+   * videoTypes と同時に指定された場合の挙動は未定義です。
    */
   hasRecording?: InputMaybe<Scalars['Boolean']>;
   /** キーワード (部分一致) */
   keywordContains?: InputMaybe<Scalars['String']>;
+  /**
+   * 動画ファイル種別
+   * 指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+   * 空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+   * hasRecording と同時に指定された場合の挙動は未定義です。
+   */
+  videoTypes?: InputMaybe<Array<VideoType>>;
+}
+
+export type LiveQuality =
+  /**
+   * Audio: bitRate=48Kbps samplingRate=32.0KHz
+   * Video: bitRate=110Kbps size=400x224 frameRate=9.99fps gop=30
+   */
+  | 'Q1'
+  /**
+   * Audio: bitRate=48Kbps samplingRate=32.0KHz
+   * Video: bitRate=200Kbps size=400x224 frameRate=14.985fps gop=45
+   */
+  | 'Q2'
+  /**
+   * Audio: bitRate=96Kbps samplingRate=32.0KHz
+   * Video: bitRate=400Kbps size=400x224 frameRate=29.97fps gop=90
+   */
+  | 'Q3'
+  /**
+   * Audio: bitRate=128Kbps samplingRate=32.0KHz
+   * Video: bitRate=600Kbps size=640x360 frameRate=29.97fps gop=90
+   */
+  | 'Q4'
+  /**
+   * Audio: bitRate=128Kbps samplingRate=32.0KHz
+   * Video: bitRate=760Kbps size=640x360 frameRate=29.97fps gop=90
+   */
+  | 'Q5'
+  /**
+   * Audio: bitRate=128Kbps samplingRate=44.1KHz
+   * Video: bitRate=1168Kbps size=640x360 frameRate=29.97fps gop=90
+   */
+  | 'Q6'
+  /**
+   * Audio: bitRate=128Kbps samplingRate=44.1KHz
+   * Video: bitRate=1800Kbps size=960x540 frameRate=29.97fps gop=90
+   */
+  | 'Q7'
+  /**
+   * Audio: bitRate=128Kbps samplingRate=44.1KHz
+   * Video: bitRate=2000Kbps size=1024x576 frameRate=29.97fps gop=90
+   */
+  | 'Q8'
+  /**
+   * Audio: bitRate=160Kbps samplingRate=44.1KHz
+   * Video: bitRate=2500Kbps size=1280x720 frameRate=29.97fps gop=90
+   */
+  | 'Q9'
+  /**
+   * Audio: bitRate=256Kbps samplingRate=44.1KHz
+   * Video: bitRate=4500Kbps size=1280x720 frameRate=29.97fps gop=90
+   */
+  | 'Q10';
+
+export interface LiveResult {
+  __typename?: 'LiveResult';
+  /** ライブID */
+  liveId: Scalars['String'];
+  /** m3u8 ファイルへの URI */
+  m3u8Uri: Scalars['URI'];
+  /** 推奨バッファ時間 */
+  preferredBufferTime: Scalars['Duration'];
 }
 
 export interface Mutation {
   __typename?: 'Mutation';
   /**
    * 放送の動画ファイルを削除します
+   *
    * @param input 放送動画削除入力
    */
-  deleteSubtitleVideo?: Maybe<Scalars['Void']>;
+  deleteSubtitleVideo: Scalars['Job'];
+  /**
+   * クエリに一致した動画ファイルを削除します。
+   * 削除する動画ファイルの種別は SubtitleQueryInput.videoTypes で指定します。
+   * SubtitleQueryInput.videoTypes の指定が無い又は空配列の場合、この処理は 0 を戻して即終了します。
+   *
+   * @param input 放送クエリ入力
+   * @param physical 物理削除の場合 true そうでない場合 false
+   * @return 削除した動画ファイルの件数
+   */
+  deleteSubtitleVideoByQuery: Scalars['Job'];
+  /**
+   * 指定されたチャンネルのライブを開始します
+   *
+   * @param stationId チャンネルID
+   * @param liveQuality ライブ品質
+   */
+  startLive?: Maybe<LiveResult>;
   /** トランスコードを開始します */
   startTranscode?: Maybe<Scalars['Void']>;
   /**
+   * ライブを停止します
+   *
+   * @param liveId ライブID
+   */
+  stopLive?: Maybe<Scalars['Void']>;
+  /** すべてのライブを停止します */
+  stopLiveAll?: Maybe<Scalars['Void']>;
+  /**
    * チャンネルを更新します
+   *
    * @param input チャンネル更新入力
    */
   updateStation?: Maybe<Station>;
   /**
    * 放送を更新します
+   *
    * @param input 放送更新入力
    * @return 更新された放送
    */
   updateSubtitle: Subtitle;
   /**
    * 放送の動画ファイルをアップロードします
+   *
    * @param input 放送動画アップロード入力
    * @param video 動画ファイル
    */
@@ -233,6 +394,24 @@ export interface Mutation {
 
 export interface MutationDeleteSubtitleVideoArgs {
   input: Array<DeleteSubtitleVideoInput>;
+  physical?: Scalars['Boolean'];
+}
+
+
+export interface MutationDeleteSubtitleVideoByQueryArgs {
+  input: SubtitleQueryInput;
+  physical?: Scalars['Boolean'];
+}
+
+
+export interface MutationStartLiveArgs {
+  liveQuality: LiveQuality;
+  stationId: Scalars['Long'];
+}
+
+
+export interface MutationStopLiveArgs {
+  liveId: Scalars['String'];
 }
 
 
@@ -280,15 +459,25 @@ export interface ProgramQueryInput {
    * 録画が存在する番組を取得する場合 true
    * 録画が存在しない番組を取得する場合 false
    * 両方の番組を取得する場合 null
+   * videoTypes と同時に指定された場合の挙動は未定義です。
    */
   hasRecording?: InputMaybe<Scalars['Boolean']>;
   /** 番組タイトル (部分一致) */
   titleContains?: InputMaybe<Scalars['String']>;
+  /**
+   * 動画ファイル種別
+   * 指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+   * 空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+   * hasRecording と同時に指定された場合の挙動は未定義です。
+   */
+  videoTypes?: InputMaybe<Array<VideoType>>;
 }
 
 /** 番組取得結果 */
 export interface ProgramResult {
   __typename?: 'ProgramResult';
+  /** 任意のコンテキストデータ */
+  contextData?: Maybe<Scalars['String']>;
   /** ページのデータ */
   data: Array<Program>;
   /** 検索結果の最大取得件数 */
@@ -304,6 +493,14 @@ export interface Query {
   /** ディスク情報を取得します */
   diskInfo: DiskInfo;
   /**
+   * ライブのバッファされている秒数を取得します
+   *
+   * @param liveId ライブID
+   */
+  getLiveDuration: Scalars['Duration'];
+  /** ジョブの進捗を0〜1の間で取得します */
+  jobProgress?: Maybe<Scalars['Float']>;
+  /**
    * キーワードグループを取得します
    *
    * @param query クエリ
@@ -315,6 +512,7 @@ export interface Query {
    * @param query クエリ
    * @param offset 検索の先頭からのオフセット
    * @param limit 検索結果の最大取得件数
+   * @param contextData 任意のコンテキストデータ
    */
   programs: ProgramResult;
   /**
@@ -333,7 +531,7 @@ export interface Query {
    * 指定されたクエリにおける、指定された放送のオフセットを取得します
    *
    * @param query クエリ
-   * @param pId 放送 IS
+   * @param pId 放送 ID
    */
   subtitleOffset?: Maybe<Scalars['Int']>;
   /**
@@ -342,10 +540,21 @@ export interface Query {
    * @param query クエリ
    * @param offset 検索の先頭からのオフセット
    * @param limit 検索結果の最大取得件数
+   * @param contextData 任意のコンテキストデータ
    */
   subtitles: SubtitleResult;
   /** API のバージョンを取得します */
   version: Scalars['String'];
+}
+
+
+export interface QueryGetLiveDurationArgs {
+  liveId: Scalars['String'];
+}
+
+
+export interface QueryJobProgressArgs {
+  job: Scalars['Job'];
 }
 
 
@@ -355,6 +564,7 @@ export interface QueryKeywordGroupsArgs {
 
 
 export interface QueryProgramsArgs {
+  contextData?: InputMaybe<Scalars['String']>;
   limit?: Scalars['Int'];
   offset: Scalars['Int'];
   query?: InputMaybe<ProgramQueryInput>;
@@ -378,6 +588,7 @@ export interface QuerySubtitleOffsetArgs {
 
 
 export interface QuerySubtitlesArgs {
+  contextData?: InputMaybe<Scalars['String']>;
   limit?: Scalars['Int'];
   offset: Scalars['Int'];
   query?: InputMaybe<SubtitleQueryInput>;
@@ -401,8 +612,12 @@ export interface Station {
   digitalCh?: Maybe<Scalars['Int']>;
   /** 種別 */
   digitalStationBand?: Maybe<DigitalStationBand>;
+  /** EPG 番組 */
+  epg: Array<Epg>;
   /** EPG 名 */
   epgName?: Maybe<Scalars['String']>;
+  /** 放送中の EPG 番組 */
+  epgNow?: Maybe<Epg>;
   /** ontvcode */
   ontvcode?: Maybe<Scalars['String']>;
   /** 受信可否 */
@@ -417,8 +632,16 @@ export interface Station {
   stationUri?: Maybe<Scalars['String']>;
 }
 
+
+/** チャンネル */
+export interface StationEpgArgs {
+  query?: InputMaybe<EpgQueryInput>;
+}
+
 /** チャンネルクエリ入力 */
 export interface StationQueryInput {
+  /** チャンネル種別 */
+  digitalStationBands?: InputMaybe<Array<DigitalStationBand>>;
   /**
    * 受信可能なチャンネルのみを取得する場合 true
    * 受信不能なチャンネルのみを取得する場合 false
@@ -475,6 +698,8 @@ export interface Subtitle {
   epgAddedBy?: Maybe<Scalars['Int']>;
   /** ステータス */
   fileStatus?: Maybe<FileStatus>;
+  /** HD 動画の容量 (バイト) */
+  hdVideoSize?: Maybe<Scalars['Long']>;
   /** HD 動画ファイルへの URI */
   hdVideoUri?: Maybe<Scalars['URI']>;
   /** すべてのキーワードグループ */
@@ -495,6 +720,8 @@ export interface Subtitle {
   pspFilename?: Maybe<Scalars['String']>;
   /** 録画タイプ */
   recordingType: RecordingType;
+  /** SD 動画の容量 (バイト) */
+  sdVideoSize?: Maybe<Scalars['Long']>;
   /** SD 動画ファイルへの URI */
   sdVideoUri?: Maybe<Scalars['URI']>;
   /** 放送開始日時 */
@@ -517,6 +744,8 @@ export interface Subtitle {
   thumbnailUri?: Maybe<Scalars['URI']>;
   /** 動画全体のサムネイルの URI */
   thumbnailUris?: Maybe<Array<Scalars['URI']>>;
+  /** TS 動画の容量 (バイト) */
+  tsVideoSize?: Maybe<Scalars['Long']>;
   /** TS 動画ファイルへの URI */
   tsVideoUri?: Maybe<Scalars['URI']>;
 }
@@ -526,15 +755,21 @@ export interface SubtitleQueryInput {
   /** ソート方向 */
   direction?: InputMaybe<Direction>;
   /**
-   * 録画が存在する放送を取得する場合 true
-   * 録画が存在しない放送を取得する場合 false
+   * ステータス
+   * 指定されたステータスを含む放送のみを取得します
+   */
+  fileStatuses?: InputMaybe<Array<FileStatus>>;
+  /**
+   * 動画ファイル種別のうち、いずれかの録画が存在する放送を取得する場合 true
+   * いずれの種別の録画も存在しない放送を取得する場合 false
    * 両方の放送を取得する場合 null
+   * videoTypes と同時に指定された場合の挙動は未定義です。
    */
   hasRecording?: InputMaybe<Scalars['Boolean']>;
   /** キーワードグループID */
   keywordGroupId?: InputMaybe<Scalars['Int']>;
   /**
-   * hasRecording=true の場合に、録画中の放送を「録画が存在する」とみなす場合 true
+   * hasRecording = true や videoTypes.isNotEmpty の場合に、録画中の放送を「録画が存在する」とみなす場合 true
    * そうでない場合 false もしくは null
    */
   nowRecording?: InputMaybe<Scalars['Boolean']>;
@@ -550,11 +785,20 @@ export interface SubtitleQueryInput {
   subtitleContains?: InputMaybe<Scalars['String']>;
   /** 番組ID */
   tId?: InputMaybe<Scalars['Int']>;
+  /**
+   * 動画ファイル種別
+   * 指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+   * 空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+   * hasRecording と同時に指定された場合の挙動は未定義です。
+   */
+  videoTypes?: InputMaybe<Array<VideoType>>;
 }
 
 /** 放送取得結果 */
 export interface SubtitleResult {
   __typename?: 'SubtitleResult';
+  /** 任意のコンテキストデータ */
+  contextData?: Maybe<Scalars['String']>;
   /** ページのデータ */
   data: Array<Subtitle>;
   /** 検索結果の最大取得件数 */

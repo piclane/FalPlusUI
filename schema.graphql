@@ -45,6 +45,24 @@ type DropInfoSummary {
     totalSum: Int!
 }
 
+"EPG"
+type Epg {
+    "カテゴリ"
+    category: EpgCategory!
+    "説明"
+    description: String!
+    "終了日時"
+    endDateTime: LocalDateTime!
+    "EPG ID"
+    epgId: Long!
+    "onTvChannel (onTvCode)"
+    onTvChannel: String!
+    "開始日時"
+    startDateTime: LocalDateTime!
+    "番組名"
+    title: String!
+}
+
 "キーワードグループ"
 type KeywordGroup {
     "キーワード"
@@ -53,24 +71,64 @@ type KeywordGroup {
     keywordGroupId: Int!
 }
 
+type LiveResult {
+    "ライブID"
+    liveId: String!
+    "m3u8 ファイルへの URI"
+    m3u8Uri: URI!
+    "推奨バッファ時間"
+    preferredBufferTime: Duration!
+}
+
 type Mutation {
     """
 
     放送の動画ファイルを削除します
+
     @param input 放送動画削除入力
     """
-    deleteSubtitleVideo(input: [DeleteSubtitleVideoInput!]!): Void
+    deleteSubtitleVideo(input: [DeleteSubtitleVideoInput!]!, physical: Boolean! = false): Job!
+    """
+
+    クエリに一致した動画ファイルを削除します。
+    削除する動画ファイルの種別は SubtitleQueryInput.videoTypes で指定します。
+    SubtitleQueryInput.videoTypes の指定が無い又は空配列の場合、この処理は 0 を戻して即終了します。
+
+    @param input 放送クエリ入力
+    @param physical 物理削除の場合 true そうでない場合 false
+    @return 削除した動画ファイルの件数
+    """
+    deleteSubtitleVideoByQuery(input: SubtitleQueryInput!, physical: Boolean! = false): Job!
+    """
+
+    指定されたチャンネルのライブを開始します
+
+    @param stationId チャンネルID
+    @param liveQuality ライブ品質
+    """
+    startLive(liveQuality: LiveQuality!, stationId: Long!): LiveResult
     "トランスコードを開始します"
     startTranscode: Void
     """
 
+    ライブを停止します
+
+    @param liveId ライブID
+    """
+    stopLive(liveId: String!): Void
+    "すべてのライブを停止します"
+    stopLiveAll: Void
+    """
+
     チャンネルを更新します
+
     @param input チャンネル更新入力
     """
     updateStation(input: StationUpdateInput): Station
     """
 
     放送を更新します
+
     @param input 放送更新入力
     @return 更新された放送
     """
@@ -78,6 +136,7 @@ type Mutation {
     """
 
     放送の動画ファイルをアップロードします
+
     @param input 放送動画アップロード入力
     @param video 動画ファイル
     """
@@ -104,6 +163,8 @@ type Program {
 
 "番組取得結果"
 type ProgramResult {
+    "任意のコンテキストデータ"
+    contextData: String
     "ページのデータ"
     data: [Program!]!
     "検索結果の最大取得件数"
@@ -119,6 +180,15 @@ type Query {
     diskInfo: DiskInfo!
     """
 
+    ライブのバッファされている秒数を取得します
+
+    @param liveId ライブID
+    """
+    getLiveDuration(liveId: String!): Duration!
+    "ジョブの進捗を0〜1の間で取得します"
+    jobProgress(job: Job!): Float
+    """
+
     キーワードグループを取得します
 
     @param query クエリ
@@ -131,8 +201,9 @@ type Query {
     @param query クエリ
     @param offset 検索の先頭からのオフセット
     @param limit 検索結果の最大取得件数
+    @param contextData 任意のコンテキストデータ
     """
-    programs(limit: Int! = 100, offset: Int!, query: ProgramQueryInput): ProgramResult!
+    programs(contextData: String, limit: Int! = 100, offset: Int!, query: ProgramQueryInput): ProgramResult!
     """
 
     チャンネルを取得します
@@ -152,7 +223,7 @@ type Query {
     指定されたクエリにおける、指定された放送のオフセットを取得します
 
     @param query クエリ
-    @param pId 放送 IS
+    @param pId 放送 ID
     """
     subtitleOffset(pId: Int!, query: SubtitleQueryInput): Int
     """
@@ -162,8 +233,9 @@ type Query {
     @param query クエリ
     @param offset 検索の先頭からのオフセット
     @param limit 検索結果の最大取得件数
+    @param contextData 任意のコンテキストデータ
     """
-    subtitles(limit: Int! = 100, offset: Int!, query: SubtitleQueryInput): SubtitleResult!
+    subtitles(contextData: String, limit: Int! = 100, offset: Int!, query: SubtitleQueryInput): SubtitleResult!
     "API のバージョンを取得します"
     version: String!
 }
@@ -176,8 +248,12 @@ type Station {
     digitalCh: Int
     "種別"
     digitalStationBand: DigitalStationBand
+    "EPG 番組"
+    epg(query: EpgQueryInput): [Epg!]!
     "EPG 名"
     epgName: String
+    "放送中の EPG 番組"
+    epgNow: Epg
     "ontvcode"
     ontvcode: String
     "受信可否"
@@ -222,6 +298,8 @@ type Subtitle {
     epgAddedBy: Int
     "ステータス"
     fileStatus: FileStatus
+    "HD 動画の容量 (バイト)"
+    hdVideoSize: Long
     "HD 動画ファイルへの URI"
     hdVideoUri: URI
     "すべてのキーワードグループ"
@@ -242,6 +320,8 @@ type Subtitle {
     pspFilename: String
     "録画タイプ"
     recordingType: RecordingType!
+    "SD 動画の容量 (バイト)"
+    sdVideoSize: Long
     "SD 動画ファイルへの URI"
     sdVideoUri: URI
     "放送開始日時"
@@ -264,12 +344,16 @@ type Subtitle {
     thumbnailUri: URI
     "動画全体のサムネイルの URI"
     thumbnailUris: [URI!]
+    "TS 動画の容量 (バイト)"
+    tsVideoSize: Long
     "TS 動画ファイルへの URI"
     tsVideoUri: URI
 }
 
 "放送取得結果"
 type SubtitleResult {
+    "任意のコンテキストデータ"
+    contextData: String
     "ページのデータ"
     data: [Subtitle!]!
     "検索結果の最大取得件数"
@@ -328,6 +412,38 @@ enum Direction {
     Descending
 }
 
+"EPG カテゴリー"
+enum EpgCategory {
+    "アニメ・特撮"
+    ANIME
+    "映画"
+    CINEMA
+    "ドキュメンタリー・教養"
+    DOCUMENTARY
+    "ドラマ"
+    DRAMA
+    "教育"
+    EDUCATION
+    "その他"
+    ETC
+    "趣味・実用"
+    HOBBY
+    "情報"
+    INFORMATION
+    "キッズ"
+    KIDS
+    "音楽"
+    MUSIC
+    "ニュース・報道"
+    NEWS
+    "スポーツ"
+    SPORTS
+    "演劇"
+    STAGE
+    "バラエティ"
+    VARIETY
+}
+
 "ステータス"
 enum FileStatus {
     "全完了"
@@ -370,6 +486,69 @@ enum FileStatus {
     WAITING_HD_TRANSCODE
     "トラコン待"
     WAITING_TRANSCODE
+}
+
+enum LiveQuality {
+    """
+
+    Audio: bitRate=48Kbps samplingRate=32.0KHz
+    Video: bitRate=110Kbps size=400x224 frameRate=9.99fps gop=30
+    """
+    Q1
+    """
+
+    Audio: bitRate=256Kbps samplingRate=44.1KHz
+    Video: bitRate=4500Kbps size=1280x720 frameRate=29.97fps gop=90
+    """
+    Q10
+    """
+
+    Audio: bitRate=48Kbps samplingRate=32.0KHz
+    Video: bitRate=200Kbps size=400x224 frameRate=14.985fps gop=45
+    """
+    Q2
+    """
+
+    Audio: bitRate=96Kbps samplingRate=32.0KHz
+    Video: bitRate=400Kbps size=400x224 frameRate=29.97fps gop=90
+    """
+    Q3
+    """
+
+    Audio: bitRate=128Kbps samplingRate=32.0KHz
+    Video: bitRate=600Kbps size=640x360 frameRate=29.97fps gop=90
+    """
+    Q4
+    """
+
+    Audio: bitRate=128Kbps samplingRate=32.0KHz
+    Video: bitRate=760Kbps size=640x360 frameRate=29.97fps gop=90
+    """
+    Q5
+    """
+
+    Audio: bitRate=128Kbps samplingRate=44.1KHz
+    Video: bitRate=1168Kbps size=640x360 frameRate=29.97fps gop=90
+    """
+    Q6
+    """
+
+    Audio: bitRate=128Kbps samplingRate=44.1KHz
+    Video: bitRate=1800Kbps size=960x540 frameRate=29.97fps gop=90
+    """
+    Q7
+    """
+
+    Audio: bitRate=128Kbps samplingRate=44.1KHz
+    Video: bitRate=2000Kbps size=1024x576 frameRate=29.97fps gop=90
+    """
+    Q8
+    """
+
+    Audio: bitRate=160Kbps samplingRate=44.1KHz
+    Video: bitRate=2500Kbps size=1280x720 frameRate=29.97fps gop=90
+    """
+    Q9
 }
 
 "録画タイプ型"
@@ -427,6 +606,9 @@ enum VideoType {
 """
 scalar Duration
 
+"Job 型"
+scalar Job
+
 """
 
 ローカルな日付型
@@ -464,10 +646,20 @@ scalar Void
 input DeleteSubtitleVideoInput {
     "放送ID"
     pId: Int
-    "物理削除の場合 true そうでない場合 false"
-    physical: Boolean = false
     "動画ファイルの種別"
     videoTypes: [VideoType!]!
+}
+
+"EPG クエリ入力"
+input EpgQueryInput {
+    "指定された日時より後に終わる"
+    endAfter: LocalDateTime
+    "指定された日時より前に終わる"
+    endBefore: LocalDateTime
+    "指定された日時より後に始まる"
+    startAfter: LocalDateTime
+    "指定された日時より前に始まる"
+    startBefore: LocalDateTime
 }
 
 "キーワードグループクエリ入力"
@@ -477,10 +669,19 @@ input KeywordGroupQueryInput {
     録画が存在するキーワードグループを取得する場合 true
     録画が存在しないキーワードグループを取得する場合 false
     両方のキーワードグループを取得する場合 null
+    videoTypes と同時に指定された場合の挙動は未定義です。
     """
     hasRecording: Boolean
     "キーワード (部分一致)"
     keywordContains: String
+    """
+
+    動画ファイル種別
+    指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+    空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+    hasRecording と同時に指定された場合の挙動は未定義です。
+    """
+    videoTypes: [VideoType!]
 }
 
 "番組クエリ入力"
@@ -494,14 +695,25 @@ input ProgramQueryInput {
     録画が存在する番組を取得する場合 true
     録画が存在しない番組を取得する場合 false
     両方の番組を取得する場合 null
+    videoTypes と同時に指定された場合の挙動は未定義です。
     """
     hasRecording: Boolean
     "番組タイトル (部分一致)"
     titleContains: String
+    """
+
+    動画ファイル種別
+    指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+    空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+    hasRecording と同時に指定された場合の挙動は未定義です。
+    """
+    videoTypes: [VideoType!]
 }
 
 "チャンネルクエリ入力"
 input StationQueryInput {
+    "チャンネル種別"
+    digitalStationBands: [DigitalStationBand!]
     """
 
     受信可能なチャンネルのみを取得する場合 true
@@ -533,16 +745,23 @@ input SubtitleQueryInput {
     direction: Direction
     """
 
-    録画が存在する放送を取得する場合 true
-    録画が存在しない放送を取得する場合 false
+    ステータス
+    指定されたステータスを含む放送のみを取得します
+    """
+    fileStatuses: [FileStatus!]
+    """
+
+    動画ファイル種別のうち、いずれかの録画が存在する放送を取得する場合 true
+    いずれの種別の録画も存在しない放送を取得する場合 false
     両方の放送を取得する場合 null
+    videoTypes と同時に指定された場合の挙動は未定義です。
     """
     hasRecording: Boolean
     "キーワードグループID"
     keywordGroupId: Int
     """
 
-    hasRecording=true の場合に、録画中の放送を「録画が存在する」とみなす場合 true
+    hasRecording = true や videoTypes.isNotEmpty の場合に、録画中の放送を「録画が存在する」とみなす場合 true
     そうでない場合 false もしくは null
     """
     nowRecording: Boolean
@@ -559,6 +778,14 @@ input SubtitleQueryInput {
     subtitleContains: String
     "番組ID"
     tId: Int
+    """
+
+    動画ファイル種別
+    指定された動画ファイル種別の内、いずれかの種別が存在する場合に、その放送が一致するとみなされます。
+    空の配列が渡された場合および無指定の場合は、このフィルタは無視されます。
+    hasRecording と同時に指定された場合の挙動は未定義です。
+    """
+    videoTypes: [VideoType!]
 }
 
 "放送更新入力"
