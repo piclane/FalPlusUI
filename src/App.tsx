@@ -3,7 +3,7 @@ import {Box} from '@mui/material';
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import '@/App.scss';
 import RecordingList from "@/components/pages/recording/list/RecordingList";
-import Player from "@/components/pages/player/Player";
+import RecordingPlayer from "@/components/pages/recording/player/RecordingPlayer";
 import {gqlClient} from "@/graphql/Client";
 import {ApolloProvider} from "@apollo/client";
 import RecordingDetail from "@/components/pages/recording/detail/RecordingDetail";
@@ -35,7 +35,7 @@ function AppContent() {
       <Route index element={<Navigate to="recordings" replace />} />
       <Route path="/recordings" element={<RecordingList />} />
       <Route path="/recordings/:pId" element={<RecordingDetail />} />
-      <Route path="/player/:pId" element={<Player />} />
+      <Route path="/recordings/player/:pId" element={<RecordingPlayer />} />
     </Routes>
   );
 

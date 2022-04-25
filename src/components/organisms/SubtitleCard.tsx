@@ -117,7 +117,7 @@ export default function SubtitleCard({subtitle: s, detail, hover, sx, className,
   const statusText = statusTheme?.text ?? '不明';
   const videoUri = s.hdVideoUri ?? s.sdVideoUri ?? '';
   const detailHref = `/recordings/${s.pId}`;
-  const playerTo = playerPath ? playerPath(s) : `/player/${s.pId}`;
+  const playerTo = playerPath ? playerPath(s) : `/recordings/player/${s.pId}`;
 
   return (
     <Card className={`subtitle-card ${statusTheme.cls ?? ''} ${hover ? 'hover' : ''} ${className ?? ''}`} variant="outlined" sx={sx}>

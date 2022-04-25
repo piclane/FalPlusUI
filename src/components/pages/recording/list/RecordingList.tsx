@@ -36,7 +36,7 @@ function Subtitles() {
                 playerPath={s => {
                   const searchParams = buildSearchParams({query, order});
                   searchParams.set('continuous', 'true');
-                  return `/player/${s.pId}?${searchParams}`;
+                  return `/recordings/player/${s.pId}?${searchParams}`;
                 }}
                 hover/>
             </Grid>

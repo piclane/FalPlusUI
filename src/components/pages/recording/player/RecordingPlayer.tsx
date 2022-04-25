@@ -20,7 +20,7 @@ import {
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import "./Player.scss";
+import "./RecordingPlayer.scss";
 import {normalizeTitle, safeNormalizeTitle} from "@/utils/SubtitleUtil";
 import {Error, Pause, PlayArrow, PlayCircleOutline, QuestionMark} from "@mui/icons-material";
 import {isDesktop, isIOS} from 'react-device-detect';
@@ -279,7 +279,7 @@ export interface PlayerProps {
   inactivityTimeout?: number;
 }
 
-export default function Player(props: PlayerProps) {
+export default function RecordingPlayer(props: PlayerProps) {
   const inactivityTimeout = props?.inactivityTimeout ?? (isDesktop ? 2000 : 10000);
   const client = useApolloClient();
   const navigate = useNavigate();
@@ -294,7 +294,7 @@ export default function Player(props: PlayerProps) {
   const [order] = useSearchOrder();
   const queryInput = useSubtitleQueryInput(query, order);
   const searchParams = buildSearchParams({query, order}); if(isContinuous) { searchParams.set('continuous', 'true'); }
-  const buildPlayerTo = (s: Subtitle) => s ? `/player/${s.pId}?${searchParams}` : null
+  const buildPlayerTo = (s: Subtitle) => s ? `/recordings/player/${s.pId}?${searchParams}` : null
   const [fetch, { loading, error, data }] = useLazyQuery<{subtitle: Subtitle}>(GET_SUBTITLE, {
     variables: {
       pId: pId

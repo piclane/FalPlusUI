@@ -241,7 +241,7 @@ function Thumbnails({subtitle: s}: {subtitle: Subtitle}) {
         const time = 5 + index * 10;
         const duration = Duration.fromObject({seconds: time});
         return (
-          <Link key={index} className="thumbnail" to={`/player/${s.pId}?t=${time}`} component={RouterLink}>
+          <Link key={index} className="thumbnail" to={`/recordings/player/${s.pId}?t=${time}`} component={RouterLink}>
             <img
               src={t}
               loading="lazy"
