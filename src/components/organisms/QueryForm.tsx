@@ -40,7 +40,13 @@ export default function QueryForm() {
   return (
     <FormControl sx={{ display: 'flex', alignItems: 'flex-end' }}>
       <ThemeProvider theme={theme}>
-        <Grid container sx={{ width: '500px', maxWidth: 'calc(100vw - 32px)' }}>
+        <Grid container sx={{
+          width: 'auto',
+          maxWidth: 'calc(100vw - 32px)',
+          [theme.breakpoints.up('md')]: {
+            width: '500px'
+          }
+        }}>
           <Grid item xs={12}>
             <QuerySelect query={query} setQuery={setQuery} />
           </Grid>
