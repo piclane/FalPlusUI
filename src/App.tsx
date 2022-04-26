@@ -43,6 +43,8 @@ function AppContent() {
   const appTopHeaderBounds = useBounds(appTopHeaderRef);
   const appHeaderRef = useRef<HTMLElement>(null);
   const appHeaderBounds = useBounds(appHeaderRef);
+  const appFooterRef = useRef<HTMLElement>(null);
+  const appFooterBounds = useBounds(appFooterRef);
   return (
     <>
       <AppTopHeader ref={appTopHeaderRef} />
@@ -50,6 +52,8 @@ function AppContent() {
         <Box id="app-header" sx={{ top: appTopHeaderBounds.height }} ref={appHeaderRef} />
         <Box id="app-header-spacer" sx={{height: appHeaderBounds.height }} />
         {routes}
+        <Box id="app-footer" ref={appFooterRef} />
+        <Box id="app-footer-spacer" sx={{height: appFooterBounds.height }} />
       </Box>
     </>
   );
