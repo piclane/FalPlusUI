@@ -1,9 +1,10 @@
 import {gql, useLazyQuery} from "@apollo/client";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useImperativeHandle, useState} from "react";
 import {Subtitle, SubtitleQueryInput, SubtitleResult} from "@/Model";
 import {Backdrop, Box, CircularProgress} from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {ThreeDots} from "react-loader-spinner";
+import {isNumber} from "@/utils/TypeUtil";
 
 const FIND_SUBTITLES = gql`
     query FindSubtitles(
@@ -25,6 +26,9 @@ const FIND_SUBTITLES = gql`
                 tsVideoUri
                 sdVideoUri
                 hdVideoUri
+                tsVideoSize
+                sdVideoSize
+                hdVideoSize
                 station {
                     stationName
                     digitalStationBand
@@ -42,21 +46,34 @@ const FIND_SUBTITLES = gql`
     }
 `;
 
-export default function InfiniteSubtitles({limit = 30, query, render}: {
+export type SetTotalCallback = (total: number) => void;
+
+export interface InfiniteSubtitlesProps {
   limit?: number;
+  setTotal?: SetTotalCallback,
   query: SubtitleQueryInput;
   render: (subtitles: Subtitle[]) => React.ReactNode
-}) {
+}
+
+export interface InfiniteSubtitlesMethods {
+  refresh(): void;
+}
+
+const InfiniteSubtitles = React.forwardRef<InfiniteSubtitlesMethods, InfiniteSubtitlesProps>((
+  {limit = 30, query, setTotal: setTotalCallback, render}: InfiniteSubtitlesProps,
+  ref
+) => {
   const [offset, setOffset] = useState(0);
   const [total, setTotal] = useState<number | null>(null);
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [fetch, {loading, error}] = useLazyQuery<{subtitles: SubtitleResult}>(FIND_SUBTITLES, {
+    notifyOnNetworkStatusChange: true,
     onCompleted(result) {
       setTotal(result.subtitles.total);
       setSubtitles(prev => [...prev, ...result.subtitles.data]);
     },
   });
-  useEffect(() => {
+  const refresh = () => {
     setSubtitles([]);
     setTotal(null);
     if(offset === 0) {
@@ -70,6 +87,9 @@ export default function InfiniteSubtitles({limit = 30, query, render}: {
     } else {
       setOffset(0);
     }
+  };
+  useEffect(() => {
+    refresh();
   }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetch({
@@ -80,6 +100,16 @@ export default function InfiniteSubtitles({limit = 30, query, render}: {
       }
     });
   }, [offset]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if(setTotalCallback && isNumber(total)) {
+      setTotalCallback(total);
+    }
+  }, [total]); // eslint-disable-line react-hooks/exhaustive-deps
+  useImperativeHandle(ref, () => ({
+    refresh() {
+      refresh();
+    }
+  }));
 
   if(error) {
     return <div>Error</div>
@@ -109,4 +139,6 @@ export default function InfiniteSubtitles({limit = 30, query, render}: {
       </InfiniteScroll>
     </>
   );
-};
+});
+
+export default InfiniteSubtitles;
