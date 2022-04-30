@@ -16,7 +16,7 @@ import InfiniteSubtitles from "@/components/organisms/InfiniteSubtitles";
 function Subtitles() {
   const [query] = useSearchQuery();
   const [order] = useSearchOrder();
-  const queryInput = useSubtitleQueryInput(query, order);
+  const queryInput = useSubtitleQueryInput();
   return (
     <InfiniteSubtitles
       query={queryInput}

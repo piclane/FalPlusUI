@@ -292,7 +292,7 @@ export default function RecordingPlayer(props: PlayerProps) {
   const {pId, time, isContinuous} = useQueryParams();
   const [query] = useSearchQuery();
   const [order] = useSearchOrder();
-  const queryInput = useSubtitleQueryInput(query, order);
+  const queryInput = useSubtitleQueryInput();
   const searchParams = buildSearchParams({query, order}); if(isContinuous) { searchParams.set('continuous', 'true'); }
   const buildPlayerTo = (s: Subtitle) => s ? `/recordings/player/${s.pId}?${searchParams}` : null
   const [fetch, { loading, error, data }] = useLazyQuery<{subtitle: Subtitle}>(GET_SUBTITLE, {

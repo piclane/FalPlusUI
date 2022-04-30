@@ -3,7 +3,7 @@ import {KeywordGroup, KeywordGroupQueryInput, Program, ProgramQueryInput, Progra
 import {isNumber} from "@/utils/TypeUtil";
 import {Autocomplete, TextField} from "@mui/material";
 import React, {Dispatch} from "react";
-import {SearchQuery} from "@/components/pages/recording/list/SearchParams";
+import {SearchQuery, useSearchVideoTypes} from "@/components/pages/recording/list/SearchParams";
 
 const FIND_OPTIONS = gql`
     query FindOptions (
@@ -51,13 +51,16 @@ export default function QuerySelect({query, setQuery}: {
   query: SearchQuery;
   setQuery: Dispatch<SearchQuery>;
 }) {
+  const [videoTypes] = useSearchVideoTypes();
   const { loading, error, data } = useQuery<{programs: ProgramResult; keywordGroups: KeywordGroup[]}>(FIND_OPTIONS, {
     variables: {
       queryProgram: {
-        hasRecording: true
+        hasRecording: videoTypes.length === 0 ? true : undefined,
+        videoTypes,
       } as ProgramQueryInput,
       queryKeywordGroup: {
-        hasRecording: true
+        hasRecording: videoTypes.length === 0 ? true : undefined,
+        videoTypes,
       } as KeywordGroupQueryInput,
     }
   });
