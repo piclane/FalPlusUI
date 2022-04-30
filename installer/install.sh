@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
-TARGET_API_VERSION="1.0.2"
+TARGET_API_VERSION="1.0.3"
 TARGET_DIR="/home/foltia"
 
 # API のバージョンを取得

@@ -1,0 +1,23 @@
+.app-header-wrapper.cleaner {
+  display: flex;
+  flex-direction: column;
+
+  & > .row {
+    display: flex;
+
+    &.lower {
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+  }
+}
+
+.cleaner {
+  .videos img {
+    width: 50px;
+    height: 15px;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+}

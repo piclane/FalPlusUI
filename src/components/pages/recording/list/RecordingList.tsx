@@ -1,7 +1,7 @@
 import React from "react";
 import {Box, Divider, Grid} from "@mui/material";
 import SubtitleCard from "@/components/organisms/SubtitleCard";
-import QueryForm from "@/components/pages/recording/list/QueryForm";
+import QueryForm from "@/components/organisms/QueryForm";
 import AppHeader from "@/components/atoms/AppHeader";
 import './RecordingList.scss';
 import DiskInfo from "@/components/pages/recording/list/DiskInfo";
@@ -16,7 +16,7 @@ import InfiniteSubtitles from "@/components/organisms/InfiniteSubtitles";
 function Subtitles() {
   const [query] = useSearchQuery();
   const [order] = useSearchOrder();
-  const queryInput = useSubtitleQueryInput(query, order);
+  const queryInput = useSubtitleQueryInput();
   return (
     <InfiniteSubtitles
       query={queryInput}
@@ -29,16 +29,17 @@ function Subtitles() {
           alignItems="stretch"
         >
           {subtitles.map(s => (
-            <Grid key={s.pId} item xs={12} md={12} lg={6} xl={4}>
+            <Grid key={`recording-list-${s.pId}`} item xs={12} md={12} lg={6} xl={4}>
               <SubtitleCard
                 subtitle={s}
                 sx={{height: '100%'}}
                 playerPath={s => {
                   const searchParams = buildSearchParams({query, order});
                   searchParams.set('continuous', 'true');
-                  return `/player/${s.pId}?${searchParams}`;
+                  return `/recordings/player/${s.pId}?${searchParams}`;
                 }}
-                hover/>
+                hover
+              />
             </Grid>
           )) ?? <></>}
         </Grid>
@@ -51,13 +52,13 @@ export default function RecordingList() {
   return (
     <Box sx={{padding: '5px 16px 16px'}}>
       <AppHeader>
-        <Box className="app-header-wrapper">
+        <Box className="app-header-wrapper recording-list">
           <DiskInfo />
           <div style={{ flexGrow: 1 }} />
           <QueryForm />
         </Box>
       </AppHeader>
-      <Divider sx={{border: '0 none', marginBottom: '16px'}}/>
+      <Divider sx={{border: '0 none', marginBottom: '16px'}} />
       <Subtitles />
     </Box>
   );

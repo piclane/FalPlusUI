@@ -1,6 +1,6 @@
 import {AppBar, AppBarProps, IconButton, Toolbar, Typography} from "@mui/material";
 import {ArrowBack, CleaningServices, Tv} from "@mui/icons-material";
-import {Link as RouterLink, To, useNavigate} from "react-router-dom";
+import {Link as RouterLink, To, useLocation, useNavigate} from "react-router-dom";
 import React from "react";
 import './AppTopHeader.scss';
 
@@ -10,12 +10,23 @@ export interface AppTopHeaderProps extends AppBarProps {
 
 const AppTopHeader = React.forwardRef((props: AppTopHeaderProps, ref) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     position = 'fixed',
     color = 'transparent',
     backTo,
     ...restProps
   } = props;
+  const navigations = [{
+    to: "/recordings",
+    label: '録画',
+    icon: <Tv />
+  }, {
+    to: "/cleaner?vt=TS",
+    label: '掃除',
+    icon: <CleaningServices />
+  }];
+
   return (
     <AppBar
       {...restProps}
@@ -33,12 +44,21 @@ const AppTopHeader = React.forwardRef((props: AppTopHeaderProps, ref) => {
         <Typography variant="h6" noWrap>
           FAL+
         </Typography>
-        <IconButton to="/recordings" aria-label="録画" component={RouterLink}>
-          <Tv />
-        </IconButton>
-        <IconButton aria-label="掃除">
-          <CleaningServices />
-        </IconButton>
+        {navigations.map(n => {
+          const m = /^([^?#]+)/.exec(n.to);
+          const selected = m && location.pathname.startsWith(m[1]);
+          return (
+            <IconButton
+              key={n.to}
+              to={n.to}
+              aria-label={n.label}
+              component={RouterLink}
+              className={`${selected ? 'selected' : ''}`}
+            >
+              {n.icon}
+            </IconButton>
+          );
+        })}
       </Toolbar>
     </AppBar>
   );

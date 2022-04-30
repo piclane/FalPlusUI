@@ -3,11 +3,12 @@ import {Box} from '@mui/material';
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import '@/App.scss';
 import RecordingList from "@/components/pages/recording/list/RecordingList";
-import Player from "@/components/pages/player/Player";
+import RecordingPlayer from "@/components/pages/recording/player/RecordingPlayer";
 import {gqlClient} from "@/graphql/Client";
 import {ApolloProvider} from "@apollo/client";
 import RecordingDetail from "@/components/pages/recording/detail/RecordingDetail";
 import AppTopHeader from "@/components/atoms/AppTopHeader";
+import Cleaner from "@/components/pages/cleaner/Cleaner";
 
 const baseName = '/falp';
 
@@ -35,7 +36,8 @@ function AppContent() {
       <Route index element={<Navigate to="recordings" replace />} />
       <Route path="/recordings" element={<RecordingList />} />
       <Route path="/recordings/:pId" element={<RecordingDetail />} />
-      <Route path="/player/:pId" element={<Player />} />
+      <Route path="/recordings/player/:pId" element={<RecordingPlayer />} />
+      <Route path="/cleaner" element={<Cleaner />} />
     </Routes>
   );
 
@@ -43,6 +45,8 @@ function AppContent() {
   const appTopHeaderBounds = useBounds(appTopHeaderRef);
   const appHeaderRef = useRef<HTMLElement>(null);
   const appHeaderBounds = useBounds(appHeaderRef);
+  const appFooterRef = useRef<HTMLElement>(null);
+  const appFooterBounds = useBounds(appFooterRef);
   return (
     <>
       <AppTopHeader ref={appTopHeaderRef} />
@@ -50,6 +54,8 @@ function AppContent() {
         <Box id="app-header" sx={{ top: appTopHeaderBounds.height }} ref={appHeaderRef} />
         <Box id="app-header-spacer" sx={{height: appHeaderBounds.height }} />
         {routes}
+        <Box id="app-footer" ref={appFooterRef} />
+        <Box id="app-footer-spacer" sx={{height: appFooterBounds.height }} />
       </Box>
     </>
   );

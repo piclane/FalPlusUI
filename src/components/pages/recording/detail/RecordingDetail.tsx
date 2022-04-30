@@ -21,6 +21,7 @@ import SubtitleCard from "@/components/organisms/SubtitleCard";
 import "./RecordingDetail.scss"
 import {Duration} from "luxon";
 import {downloadFile} from "@/utils/FileUtil";
+import {VIDEO_TYPES} from "@/Constants";
 
 const GET_SUBTITLE = gql`
     query GetSubtitle(
@@ -172,60 +173,24 @@ function Detail({subtitle: s}: {subtitle: Subtitle}) {
           <Card className="videos">
             <CardHeader title="Downloads" />
             <CardContent component={List}>
-              {s.tsVideoUri
-                ? <ListItem disablePadding>
+              {Object.values(VIDEO_TYPES).map(vt => vt.videoUri(s)
+                ? <ListItem key={vt.videoType} disablePadding>
                     <ListItemIcon>
-                      <img src="/images/icon/ic_mpeg2.png" alt="TS Video" />
+                      <img src={vt.icon} alt={vt.name} />
                     </ListItemIcon>
                     <ListItemText>
                       <Link
-                        href={s.tsVideoUri}
+                        href={vt.videoUri(s) ?? ''}
                         underline="hover"
                         target="_blank"
                         rel="noopener"
                         variant="caption"
                         onClick={e => {handleDownloadVideo(s.tsVideoUri); e.preventDefault();}}
-                      >{uri2filename(s.tsVideoUri)}</Link>
+                      >{uri2filename(vt.videoUri(s) ?? '')}</Link>
                     </ListItemText>
                   </ListItem>
-                : <></>
-              }
-              {s.sdVideoUri
-                ? <ListItem disablePadding>
-                    <ListItemIcon>
-                      <img src="/images/icon/ic_mp4SD.png" alt="SD Video" />
-                    </ListItemIcon>
-                    <ListItemText>
-                      <Link
-                        href={s.sdVideoUri}
-                        underline="hover"
-                        target="_blank"
-                        rel="noopener"
-                        variant="caption"
-                        onClick={e => {handleDownloadVideo(s.sdVideoUri); e.preventDefault();}}
-                      >{uri2filename(s.sdVideoUri)}</Link>
-                    </ListItemText>
-                  </ListItem>
-                : <></>
-              }
-              {s.hdVideoUri
-                ? <ListItem disablePadding>
-                    <ListItemIcon>
-                      <img src="/images/icon/ic_mp4HD.png" alt="HD Video" />
-                    </ListItemIcon>
-                    <ListItemText>
-                      <Link
-                        href={s.hdVideoUri}
-                        underline="hover"
-                        target="_blank"
-                        rel="noopener"
-                        variant="caption"
-                        onClick={e => {handleDownloadVideo(s.hdVideoUri); e.preventDefault();}}
-                      >{uri2filename(s.hdVideoUri)}</Link>
-                    </ListItemText>
-                  </ListItem>
-                : <></>
-              }
+                : <React.Fragment key={vt.videoType}></React.Fragment>
+              )}
             </CardContent>
           </Card>
         </Stack>
@@ -241,7 +206,7 @@ function Thumbnails({subtitle: s}: {subtitle: Subtitle}) {
         const time = 5 + index * 10;
         const duration = Duration.fromObject({seconds: time});
         return (
-          <Link key={index} className="thumbnail" to={`/player/${s.pId}?t=${time}`} component={RouterLink}>
+          <Link key={index} className="thumbnail" to={`/recordings/player/${s.pId}?t=${time}`} component={RouterLink}>
             <img
               src={t}
               loading="lazy"

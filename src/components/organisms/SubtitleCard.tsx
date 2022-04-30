@@ -65,15 +65,20 @@ const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
     )
   };
 
+  const searchParams = new URLSearchParams(location.search);
   if(s.tId === TID_KEYWORD) {
     if (s.keywordGroups && s.keywordGroups.length) {
       return (
         <ul className="title keyword-groups">
-          {s.keywordGroups.map(kg => (
-            <li key={kg.keywordGroupId}>
-              <TitleBody to={`/recordings?mode=keyword&keywordGroupId=${kg.keywordGroupId}`} text={kg.keyword} />
-            </li>
-          ))}
+          {s.keywordGroups.map(kg => {
+            searchParams.set('mode', 'keyword');
+            searchParams.set('keywordGroupId', `${kg.keywordGroupId}`);
+            return (
+              <li key={kg.keywordGroupId}>
+                <TitleBody to={`?${searchParams}`} text={kg.keyword} />
+              </li>
+            );
+          })}
         </ul>
       );
     } else {
@@ -90,21 +95,25 @@ const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
       </div>
     );
   } else {
+    searchParams.set('mode', 'program');
+    searchParams.set('tId', `${s.program.tId}`);
     return (
       <div className="title">
-        <TitleBody to={`/recordings?mode=program&tId=${s.program.tId}`} text={titles.title} />
+        <TitleBody to={`?${searchParams}`} text={titles.title} />
       </div>
     );
   }
 };
 
-export default function SubtitleCard({subtitle: s, detail, hover, sx, className, children, playerPath}: {
+export default function SubtitleCard({subtitle: s, detail, mini, hover, sx, className, children, footer, playerPath}: {
   subtitle: Subtitle;
   detail?: boolean;
   hover?: boolean;
+  mini?: boolean;
   sx?: SxProps<Theme>;
   className?: string;
   children?: React.ReactNode;
+  footer?: React.ReactNode;
   playerPath?: (subtitle: Subtitle) => To;
 }) {
   const location = useLocation();
@@ -117,10 +126,10 @@ export default function SubtitleCard({subtitle: s, detail, hover, sx, className,
   const statusText = statusTheme?.text ?? '不明';
   const videoUri = s.hdVideoUri ?? s.sdVideoUri ?? '';
   const detailHref = `/recordings/${s.pId}`;
-  const playerTo = playerPath ? playerPath(s) : `/player/${s.pId}`;
+  const playerTo = playerPath ? playerPath(s) : `/recordings/player/${s.pId}`;
 
   return (
-    <Card className={`subtitle-card ${statusTheme.cls ?? ''} ${hover ? 'hover' : ''} ${className ?? ''}`} variant="outlined" sx={sx}>
+    <Card className={`subtitle-card ${statusTheme.cls ?? ''} ${mini ? 'mini' : ''} ${hover ? 'hover' : ''} ${className ?? ''}`} variant="outlined" sx={sx}>
       <Link to={playerTo} underline="none" className="thumbnail-container" component={RouterLink}>
         <CardMedia
           component="img"
@@ -165,6 +174,7 @@ export default function SubtitleCard({subtitle: s, detail, hover, sx, className,
         <div className="spacer" />
         <div className="footer">
           <div className="start-date-time">{startDateTime.toFormat('yyyy/MM/dd(EEE) HH:mm:ss', {locale: 'ja'})}</div>
+          {footer ?? <></>}
           <div className="spacer" />
           <div className="file-status">
           {detail
