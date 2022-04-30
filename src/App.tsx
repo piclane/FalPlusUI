@@ -8,6 +8,7 @@ import {gqlClient} from "@/graphql/Client";
 import {ApolloProvider} from "@apollo/client";
 import RecordingDetail from "@/components/pages/recording/detail/RecordingDetail";
 import AppTopHeader from "@/components/atoms/AppTopHeader";
+import Cleaner from "@/components/pages/cleaner/Cleaner";
 
 const baseName = '/falp';
 
@@ -36,6 +37,7 @@ function AppContent() {
       <Route path="/recordings" element={<RecordingList />} />
       <Route path="/recordings/:pId" element={<RecordingDetail />} />
       <Route path="/recordings/player/:pId" element={<RecordingPlayer />} />
+      <Route path="/cleaner" element={<Cleaner />} />
     </Routes>
   );
 
