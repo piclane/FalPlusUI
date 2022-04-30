@@ -29,7 +29,7 @@ function Subtitles() {
           alignItems="stretch"
         >
           {subtitles.map(s => (
-            <Grid key={s.pId} item xs={12} md={12} lg={6} xl={4}>
+            <Grid key={`recording-list-${s.pId}`} item xs={12} md={12} lg={6} xl={4}>
               <SubtitleCard
                 subtitle={s}
                 sx={{height: '100%'}}
@@ -38,7 +38,8 @@ function Subtitles() {
                   searchParams.set('continuous', 'true');
                   return `/recordings/player/${s.pId}?${searchParams}`;
                 }}
-                hover/>
+                hover
+              />
             </Grid>
           )) ?? <></>}
         </Grid>
@@ -51,13 +52,13 @@ export default function RecordingList() {
   return (
     <Box sx={{padding: '5px 16px 16px'}}>
       <AppHeader>
-        <Box className="app-header-wrapper">
+        <Box className="app-header-wrapper recording-list">
           <DiskInfo />
           <div style={{ flexGrow: 1 }} />
           <QueryForm />
         </Box>
       </AppHeader>
-      <Divider sx={{border: '0 none', marginBottom: '16px'}}/>
+      <Divider sx={{border: '0 none', marginBottom: '16px'}} />
       <Subtitles />
     </Box>
   );
