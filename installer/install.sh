@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
-TARGET_API_VERSION="1.0.3"
+TARGET_API_VERSION="1.0.4"
 TARGET_DIR="/home/foltia"
 
 # API のバージョンを取得
@@ -13,11 +13,11 @@ fi
 # API の更新
 if [ "$API_VERSION" != "$TARGET_API_VERSION" ] && \
    [ "$(printf '%s\n%s' "$API_VERSION" "$TARGET_API_VERSION" | sort -Vr | head -n 1)" == "$TARGET_API_VERSION" ] ; then
-  curl -L -o /tmp/fapi.tar.gz "$(curl -sS -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/repos/piclane/FoltiaApi/releases/latest' | grep '"browser_download_url"' | sed -E -e 's/^.*"(https:[^"]+)"$/\1/')"
+  curl -L -# -o /tmp/fapi.tar.gz "$(curl -sS -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/repos/piclane/FalPlusAPI/releases/latest' | grep '"browser_download_url"' | sed -E -e 's/^.*"(https:[^"]+)"$/\1/')"
   pushd /tmp >/dev/null
   tar zxf fapi.tar.gz
   rm fapi.tar.gz
-  cd "$(find . -name 'foltia_api-*' | sort -Vr | head -n 1)"
+  cd "$(find . -name 'fal-plus-api-*' | sort -Vr | head -n 1)"
   ./install.sh
   popd >/dev/null
 fi
