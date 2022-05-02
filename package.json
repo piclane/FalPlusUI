@@ -1,6 +1,6 @@
 {
   "name": "fal-plus-ui",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "homepage": "/falp",
   "dependencies": {
@@ -53,8 +53,8 @@
     "@types/react": "^17.0.43"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "start": "REACT_APP_VERSION=\"$npm_package_version\" REACT_APP_COMMIT_DATETIME=\"$(git log --pretty='format:%ad' --date=iso-strict -n 1)\" craco start",
+    "build": "REACT_APP_VERSION=\"$npm_package_version\" REACT_APP_COMMIT_DATETIME=\"$(git log --pretty='format:%ad' --date=iso-strict -n 1)\" craco build",
     "test": "craco test",
     "eject": "craco eject",
     "package": "./package.sh",

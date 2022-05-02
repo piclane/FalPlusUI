@@ -8,7 +8,7 @@ export interface AppTopHeaderProps extends AppBarProps {
   backTo?: () => To
 }
 
-const AppTopHeader = React.forwardRef((props: AppTopHeaderProps, ref) => {
+const AppTopHeader = React.forwardRef<HTMLDivElement, AppTopHeaderProps>((props: AppTopHeaderProps, ref) => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -34,7 +34,6 @@ const AppTopHeader = React.forwardRef((props: AppTopHeaderProps, ref) => {
       position={position}
       color={color}
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      // @ts-ignore
       ref={ref}
     >
       <Toolbar className="app-top-header-tool-bar">
