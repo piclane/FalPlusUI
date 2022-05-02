@@ -9,6 +9,7 @@ import {ApolloProvider} from "@apollo/client";
 import RecordingDetail from "@/components/pages/recording/detail/RecordingDetail";
 import AppTopHeader from "@/components/atoms/AppTopHeader";
 import Cleaner from "@/components/pages/cleaner/Cleaner";
+import AppBottomFooter from "@/components/atoms/AppBottomFooter";
 
 const baseName = '/falp';
 
@@ -47,16 +48,23 @@ function AppContent() {
   const appHeaderBounds = useBounds(appHeaderRef);
   const appFooterRef = useRef<HTMLElement>(null);
   const appFooterBounds = useBounds(appFooterRef);
+  const appBottomFooterRef = useRef<HTMLDivElement>(null);
+  const appBottomFooterBounds = useBounds(appBottomFooterRef);
   return (
     <>
       <AppTopHeader ref={appTopHeaderRef} />
-      <Box sx={{ flexGrow: 1, paddingTop: appTopHeaderBounds.height }}>
+      <Box sx={{
+        flexGrow: 1,
+        paddingTop: appTopHeaderBounds.height,
+        paddingBottom: appBottomFooterBounds.height,
+      }}>
         <Box id="app-header" sx={{ top: appTopHeaderBounds.height }} ref={appHeaderRef} />
         <Box id="app-header-spacer" sx={{height: appHeaderBounds.height }} />
         {routes}
         <Box id="app-footer" ref={appFooterRef} />
         <Box id="app-footer-spacer" sx={{height: appFooterBounds.height }} />
       </Box>
+      <AppBottomFooter ref={appBottomFooterRef} />
     </>
   );
 }
