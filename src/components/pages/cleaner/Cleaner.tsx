@@ -23,7 +23,7 @@ import {
   toggleVideoType,
   useSearchVideoTypes,
   useSubtitleQueryInput
-} from "@/components/pages/recording/list/SearchParams";
+} from "@/components/organisms/SearchParams";
 import InfiniteSubtitles, {InfiniteSubtitlesMethods} from "@/components/organisms/InfiniteSubtitles";
 import SubtitleCard from "@/components/organisms/SubtitleCard";
 import "./Cleaner.scss";

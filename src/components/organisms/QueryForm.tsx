@@ -10,7 +10,7 @@ import React from "react";
 
 import QuerySelect from "@/components/organisms/QuerySelect";
 import {Sort} from "@mui/icons-material";
-import {useSearchOrder, useSearchQuery} from "@/components/pages/recording/list/SearchParams";
+import {useSearchOrder, useSearchQuery} from "@/components/organisms/SearchParams";
 
 const theme = createTheme({
   components: {
