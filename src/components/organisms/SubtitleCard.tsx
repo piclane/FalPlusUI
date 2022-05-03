@@ -1,55 +1,47 @@
-import {FileStatus, Subtitle} from "@/Model";
+import {FileStatus, Subtitle, SubtitleUpdateInput} from "@/Model";
 import {DateTime, Duration} from "luxon";
-import {Card, CardContent, CardMedia, CircularProgress, Link, Tooltip} from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Link,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Tooltip,
+  Typography
+} from "@mui/material";
 import {Theme} from '@mui/material/styles';
-import React from "react";
+import React, {useState} from "react";
 import "./SubtitleCard.scss";
 import {Link as RouterLink, To, useLocation, useNavigate} from "react-router-dom";
 import {SxProps} from "@mui/system";
-import {
-  Done,
-  Error,
-  HourglassBottom,
-  HourglassTop,
-  PlayCircleOutline,
-  PlayDisabled,
-  Videocam
-} from "@mui/icons-material";
+import {PlayCircleOutline, PlayDisabled, Videocam} from "@mui/icons-material";
 import {normalizeTitle, TID_EPG, TID_KEYWORD} from "@/utils/SubtitleUtil";
 import {resolvePath} from "react-router";
 import {equalsPath} from "@/utils/RouteUtil";
+import {buildClassNames} from "@/utils/NodeUtil";
+import {STATUS_THEMES, ViewFileStatusType} from "@/Constants";
+import {gql, useMutation} from "@apollo/client";
 
-interface StatusTheme {
-  text: string;
-  icon?: React.ReactElement;
-  cls?: string;
+const UPDATE_SUBTITLE = gql`
+  mutation UpdateSubtitle(
+      $input: SubtitleUpdateInput!
+  ) {
+      updateSubtitle(input: $input) {
+          pId
+          fileStatus
+      }
+  }
+`;
+
+function statusView(status?: ViewFileStatusType | null | undefined) {
+  const statusTheme = STATUS_THEMES[status ?? 'UNDEFINED'];
+  return {
+    text: statusTheme?.text ?? '不明',
+    icon: React.cloneElement(statusTheme?.icon ?? <></>, {className: 'icon'})
+  };
 }
-
-const progressIcon = () => (<CircularProgress size={12} color="inherit" />);
-const statusThemes: Record<(FileStatus | 'UNDEFINED'), StatusTheme> = Object.freeze({
-  RESERVING_LONG: {text: "予約中", icon: <HourglassTop />},
-  RESERVING_SHORT: {text: "予約中(直前)", icon: <HourglassBottom />},
-  RECORDING: {text: "録画中", cls: 'recording', icon: <Videocam sx={{color: 'red'}} />},
-  REC_TS_SPLITTING: {text: "録画後ファイル分割中", icon: progressIcon()},
-  RECEND: {text: "録画完了", cls: 'recording', icon: <Videocam sx={{color: '#600'}} />},
-  WAITING_CAPTURE: {text: "キャプ作成待ち", cls: 'recording', icon: progressIcon()},
-  CAPTURE: {text: "キャプ作成中", cls: 'recording', icon: progressIcon()},
-  CAPEND: {text: "キャプ作成完了", cls: 'recording', icon: progressIcon()},
-  THM_CREATE: {text: "サムネイル作成中", cls: 'recording', icon: progressIcon()},
-  WAITING_TRANSCODE: {text: "MP4変換待ち", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_TS_SPLITTING: {text: "MP4変換中(スプリット)", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_FFMPEG: {text: "MP4変換中(SD映像)", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_WAVE: {text: "MP4変換中(音声抽出)", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_AAC: {text: "MP4変換中(音声)", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_MP4BOX: {text: "AAC作成完了", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_ATOM: {text: "MP4変換中(ヘッダ)", cls: 'recording', icon: progressIcon()},
-  TRANSCODE_COMPLETE: {text: "MP4-SD変換完了", cls: 'recording', icon: progressIcon()},
-  WAITING_HD_TRANSCODE: {text: "MP4-HD変換中", cls: 'recording', icon: progressIcon()},
-  ALL_COMPLETE: {text: "完了", cls: 'success', icon: <Done sx={{color: '#00d300'}}/>},
-  TRANSCODE_FAILED: {text: "変換不能(スキップ)", cls: 'fail', icon: <Error color="error" />},
-  UNDEFINED: {text: "未定義"}
-});
-
 
 const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
   const titles = normalizeTitle(s);
@@ -105,31 +97,93 @@ const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
   }
 };
 
-export default function SubtitleCard({subtitle: s, detail, mini, hover, sx, className, children, footer, playerPath}: {
+const EditableStatus = ({subtitle: s}: {subtitle: Subtitle}) => {
+  const availableOptions = ['RECEND', 'ALL_COMPLETE', 'TRANSCODE_FAILED'];
+  const selectOptions = Object.entries(STATUS_THEMES).map(e => {
+    return {value: e[0], available: availableOptions.includes(e[0]), ...e[1]};
+  });
+  const [status, setStatus] = useState<ViewFileStatusType>(s.fileStatus ?? 'UNDEFINED');
+  const [updateSubtitle] = useMutation<{updateSubtitle: Subtitle}>(UPDATE_SUBTITLE);
+  const handleStatusChanged = async (e: SelectChangeEvent<ViewFileStatusType>) => {
+    const newStatus = e.target.value as FileStatus;
+    const input: SubtitleUpdateInput = {
+      pId: s.pId,
+      fileStatus: newStatus
+    };
+    await updateSubtitle({
+      variables: {
+        input
+      }
+    });
+    setStatus(newStatus);
+  };
+
+  return (
+    <Select <ViewFileStatusType>
+      value={status}
+      variant="standard"
+      onChange={handleStatusChanged}
+      inputProps={{ sx: { paddingTop: 0, paddingBottom: 0 } }}
+      renderValue={(selected) => {
+        const view = statusView(selected);
+        return (
+          <div className="file-status" style={{ paddingLeft: '1em' }}>
+            {view.icon}
+            <span className="label">{view.text}</span>
+          </div>
+        );
+      }}
+    >
+      {selectOptions.map(e => (
+        <MenuItem key={e.value} value={e.value} sx={{ display: e.available ? 'flex' : 'none' }}>
+          {e.icon}
+          <Typography variant="button" sx={{ marginLeft: '0.2em' }}>{e.text}</Typography>
+        </MenuItem>
+      ))}
+    </Select>
+  );
+};
+
+export interface SubtitleCardProps {
+  /** 表示する放送 */
   subtitle: Subtitle;
+
+  /** 録画詳細モードで使用する場合 true */
   detail?: boolean;
+
+  /** マウスカーソルがホバー状態の場合に、強調表示する場合 true */
   hover?: boolean;
+
+  /** 少し小さめに表示する場合 true */
   mini?: boolean;
+
+  /** CSS スタイルのオーバーライドを指定します */
   sx?: SxProps<Theme>;
+
+  /** 追加のクラス名を指定します */
   className?: string;
+
+  /** ボディー領域に表示する子ノード */
   children?: React.ReactNode;
+
+  /** フッタ領域に表示する子ノード */
   footer?: React.ReactNode;
   playerPath?: (subtitle: Subtitle) => To;
-}) {
+}
+
+export default function SubtitleCard(props: SubtitleCardProps) {
+  const {subtitle: s, detail, mini, hover, sx, className, children, footer, playerPath} = props;
   const location = useLocation();
   const navigate = useNavigate();
   const startDateTime = DateTime.fromISO(s.startDateTime);
   const duration = Duration.fromISO(s.duration);
   const status = s.fileStatus ?? 'UNDEFINED';
-  const statusTheme = statusThemes[status];
-  const statusIcon = React.cloneElement(statusTheme?.icon ?? <></>, {className: 'icon'});
-  const statusText = statusTheme?.text ?? '不明';
   const videoUri = s.hdVideoUri ?? s.sdVideoUri ?? '';
   const detailHref = `/recordings/${s.pId}`;
   const playerTo = playerPath ? playerPath(s) : `/recordings/player/${s.pId}`;
 
   return (
-    <Card className={`subtitle-card ${statusTheme.cls ?? ''} ${mini ? 'mini' : ''} ${hover ? 'hover' : ''} ${className ?? ''}`} variant="outlined" sx={sx}>
+    <Card className={buildClassNames({'subtitle-card': true, mini, hover, [className ?? '']: true})} variant="outlined" sx={sx}>
       <Link to={playerTo} underline="none" className="thumbnail-container" component={RouterLink}>
         <CardMedia
           component="img"
@@ -176,17 +230,18 @@ export default function SubtitleCard({subtitle: s, detail, mini, hover, sx, clas
           <div className="start-date-time">{startDateTime.toFormat('yyyy/MM/dd(EEE) HH:mm:ss', {locale: 'ja'})}</div>
           {footer ?? <></>}
           <div className="spacer" />
-          <div className="file-status">
           {detail
-          ? <>
-              {statusIcon}
-              <span className="label">{statusText}</span>
-            </>
-          : <Tooltip title={statusTheme?.text ?? '不明'} arrow>
-              {statusIcon}
-            </Tooltip>
-          }
-          </div>
+          ? <EditableStatus subtitle={s} />
+          : (() => {
+              const view = statusView(status);
+              return (
+                <div className="file-status">
+                  <Tooltip title={view.text} arrow>
+                    {view.icon}
+                  </Tooltip>
+                </div>
+              );
+            })()}
         </div>
       </CardContent>
     </Card>
