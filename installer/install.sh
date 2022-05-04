@@ -1,18 +1,19 @@
 #!/bin/bash -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
-TARGET_API_VERSION="1.0.4"
+TARGET_API_VERSION="1.0.5"
 TARGET_DIR="/home/foltia"
 
-# API のバージョンを取得
+# Fal+API のバージョンを取得
 API_VERSION="$(curl -Ss http://localhost:8080/actuator/info | sed -E -e 's/^.*"version":"([^"]+)".*$/\1/')"
 if [ "$API_VERSION" == "" ] ; then
   API_VERSION="0.0.0"
 fi
 
-# API の更新
+# Fal+API の更新
 if [ "$API_VERSION" != "$TARGET_API_VERSION" ] && \
    [ "$(printf '%s\n%s' "$API_VERSION" "$TARGET_API_VERSION" | sort -Vr | head -n 1)" == "$TARGET_API_VERSION" ] ; then
+  echo "FalPlusAPI の更新を行います"
   curl -L -# -o /tmp/fapi.tar.gz "$(curl -sS -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/repos/piclane/FalPlusAPI/releases/latest' | grep '"browser_download_url"' | sed -E -e 's/^.*"(https:[^"]+)"$/\1/')"
   pushd /tmp >/dev/null
   tar zxf fapi.tar.gz
@@ -22,7 +23,8 @@ if [ "$API_VERSION" != "$TARGET_API_VERSION" ] && \
   popd >/dev/null
 fi
 
-# FAL+ インストール
+# FAL+UI インストール
+echo "FalPlusUI の更新を行います"
 rm -rf "${TARGET_DIR}/falp"
 mv "$SCRIPT_DIR/falp" "${TARGET_DIR}/falp"
 chown -R foltia. "${TARGET_DIR}/falp"
