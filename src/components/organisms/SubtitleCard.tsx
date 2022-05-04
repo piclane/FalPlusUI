@@ -127,7 +127,7 @@ const EditableStatus = ({subtitle: s}: {subtitle: Subtitle}) => {
       renderValue={(selected) => {
         const view = statusView(selected);
         return (
-          <div className="file-status" style={{ paddingLeft: '1em' }}>
+          <div className="file-status" style={{ paddingLeft: '0.5em' }}>
             {view.icon}
             <span className="label">{view.text}</span>
           </div>
