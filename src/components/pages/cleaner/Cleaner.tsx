@@ -115,7 +115,7 @@ const Subtitles = React.forwardRef<SubtitlesMethods, SubtitlesProps>((
                 sx={{height: '100%'}}
                 footer={<span className="videos">
                   {Object.values(VIDEO_TYPES).map(vt => isNumber(vt.videoSize(s))
-                    ? <img key={vt.videoType} src={vt.icon} alt={vt.name} />
+                    ? <img key={vt.videoType} src={vt.icon} alt={vt.label} />
                     : <React.Fragment key={vt.videoType}></React.Fragment>
                   )}
                 </span>}
@@ -380,7 +380,7 @@ export default function Cleaner() {
                         />
                       </ListItemIcon>
                     </ListItemButton>
-                    <img src={vt.icon} alt={vt.name} />
+                    <img src={vt.icon} alt={vt.label} />
                   </ListItem>
                 ))}
               </List>

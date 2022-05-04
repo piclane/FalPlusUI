@@ -38,7 +38,7 @@ const UPDATE_SUBTITLE = gql`
 function statusView(status?: ViewFileStatusType | null | undefined) {
   const statusTheme = STATUS_THEMES[status ?? 'UNDEFINED'];
   return {
-    text: statusTheme?.text ?? '不明',
+    text: statusTheme?.label ?? '不明',
     icon: React.cloneElement(statusTheme?.icon ?? <></>, {className: 'icon'})
   };
 }
@@ -137,7 +137,7 @@ const EditableStatus = ({subtitle: s}: {subtitle: Subtitle}) => {
       {selectOptions.map(e => (
         <MenuItem key={e.value} value={e.value} sx={{ display: e.available ? 'flex' : 'none' }}>
           {e.icon}
-          <Typography variant="button" sx={{ marginLeft: '0.2em' }}>{e.text}</Typography>
+          <Typography variant="button" sx={{ marginLeft: '0.2em' }}>{e.label}</Typography>
         </MenuItem>
       ))}
     </Select>
