@@ -185,7 +185,7 @@ function Detail({subtitle: s}: {subtitle: Subtitle}) {
                         target="_blank"
                         rel="noopener"
                         variant="caption"
-                        onClick={e => {handleDownloadVideo(s.tsVideoUri); e.preventDefault();}}
+                        onClick={e => {handleDownloadVideo(vt.videoUri(s)); e.preventDefault();}}
                       >{uri2filename(vt.videoUri(s) ?? '')}</Link>
                     </ListItemText>
                   </ListItem>
