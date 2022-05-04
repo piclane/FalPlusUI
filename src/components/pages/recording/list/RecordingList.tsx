@@ -10,7 +10,7 @@ import {
   useSearchOrder,
   useSearchQuery,
   useSubtitleQueryInput
-} from "@/components/pages/recording/list/SearchParams";
+} from "@/components/organisms/SearchParams";
 import InfiniteSubtitles from "@/components/organisms/InfiniteSubtitles";
 
 function Subtitles() {

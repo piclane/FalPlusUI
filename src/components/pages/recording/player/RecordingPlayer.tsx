@@ -30,7 +30,7 @@ import {
   useSearchOrder,
   useSearchQuery,
   useSubtitleQueryInput
-} from "@/components/pages/recording/list/SearchParams";
+} from "@/components/organisms/SearchParams";
 import {ReactComponent as BackwardIcon} from '@/assets/icon_forward.svg';
 
 const GET_SUBTITLE = gql`

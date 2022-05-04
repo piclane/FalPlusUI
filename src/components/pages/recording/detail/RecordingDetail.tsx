@@ -173,24 +173,31 @@ function Detail({subtitle: s}: {subtitle: Subtitle}) {
           <Card className="videos">
             <CardHeader title="Downloads" />
             <CardContent component={List}>
-              {Object.values(VIDEO_TYPES).map(vt => vt.videoUri(s)
-                ? <ListItem key={vt.videoType} disablePadding>
+              {Object.values(VIDEO_TYPES).map(vt => (
+                <ListItem key={vt.videoType} disablePadding>
                     <ListItemIcon>
-                      <img src={vt.icon} alt={vt.name} />
+                      <img src={vt.icon} alt={vt.label} />
                     </ListItemIcon>
                     <ListItemText>
-                      <Link
-                        href={vt.videoUri(s) ?? ''}
-                        underline="hover"
-                        target="_blank"
-                        rel="noopener"
-                        variant="caption"
-                        onClick={e => {handleDownloadVideo(s.tsVideoUri); e.preventDefault();}}
-                      >{uri2filename(vt.videoUri(s) ?? '')}</Link>
+                      {vt.videoUri(s)
+                        ? <Link
+                            href={vt.videoUri(s) ?? ''}
+                            underline="hover"
+                            target="_blank"
+                            rel="noopener"
+                            variant="caption"
+                            onClick={e => {
+                              handleDownloadVideo(vt.videoUri(s));
+                              e.preventDefault();
+                            }}
+                          >
+                            <Typography variant="body2">{uri2filename(vt.videoUri(s) ?? '')}</Typography>
+                          </Link>
+                        : <Typography variant="body2">-</Typography>
+                      }
                     </ListItemText>
                   </ListItem>
-                : <React.Fragment key={vt.videoType}></React.Fragment>
-              )}
+              ))}
             </CardContent>
           </Card>
         </Stack>

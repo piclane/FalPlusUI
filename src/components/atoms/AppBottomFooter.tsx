@@ -35,7 +35,9 @@ const theme = createTheme({
           fontSize: '12px',
           fontWeight: "400",
           fontFamily: "'Akshar', sans-serif",
-          marginRight: '0.5em'
+          marginRight: '0.5em',
+          userSelect: 'none',
+          cursor: "default"
         }
       }
     }

@@ -3,7 +3,7 @@ import {KeywordGroup, KeywordGroupQueryInput, Program, ProgramQueryInput, Progra
 import {isNumber} from "@/utils/TypeUtil";
 import {Autocomplete, TextField} from "@mui/material";
 import React, {Dispatch} from "react";
-import {SearchQuery, useSearchVideoTypes} from "@/components/pages/recording/list/SearchParams";
+import {SearchQuery, useSearchVideoTypes} from "@/components/organisms/SearchParams";
 
 const FIND_OPTIONS = gql`
     query FindOptions (
