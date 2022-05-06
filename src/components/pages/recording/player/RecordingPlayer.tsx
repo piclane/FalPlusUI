@@ -103,11 +103,6 @@ const FIND_SUBTITLES = gql`
 `;
 
 const headerTheme = createTheme({
-  palette: {
-    text: {
-      primary: "#FFFFFF"
-    }
-  },
   components: {
     MuiCard: {
       styleOverrides: {
