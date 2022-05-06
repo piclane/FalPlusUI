@@ -20,7 +20,7 @@ import {PlayCircleOutline, PlayDisabled, Videocam} from "@mui/icons-material";
 import {normalizeTitle, TID_EPG, TID_KEYWORD} from "@/utils/SubtitleUtil";
 import {resolvePath} from "react-router";
 import {equalsPath} from "@/utils/RouteUtil";
-import {buildClassNames} from "@/utils/NodeUtil";
+import {buildClassNames as _BCN} from "@/utils/NodeUtil";
 import {FILE_STATUS_THEMES, fileStatusTheme, FileStatusThemeType} from "@/Constants";
 import {gql, useMutation} from "@apollo/client";
 
@@ -175,7 +175,7 @@ export default function SubtitleCard(props: SubtitleCardProps) {
   const playerTo = playerPath ? playerPath(s) : `/recordings/player/${s.pId}`;
 
   return (
-    <Card className={buildClassNames({'subtitle-card': true, mini, hover, [className ?? '']: true})} variant="outlined" sx={sx}>
+    <Card className={_BCN('subtitle-card', className, fst.cls, {mini, hover})} variant="outlined" sx={sx}>
       <Link to={playerTo} underline="none" className="thumbnail-container" component={RouterLink}>
         <CardMedia
           component="img"
