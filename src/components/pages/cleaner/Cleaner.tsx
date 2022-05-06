@@ -387,8 +387,9 @@ export default function Cleaner() {
               <QueryForm />
             </Box>
             <Box className="row lower">
-              <Button variant="contained" size="medium" color="error" disabled={queryContext?.valid !== true || queryContext?.complete !== true} onClick={handleDelete}>
-                {(() => {
+              {(() => {
+                let disabled = true;
+                const buttonContent = (() => {
                   if(queryContext?.complete !== true) {
                     return (<>
                       <span style={{ marginRight: '0.2em' }}>集計中... </span>
@@ -396,11 +397,19 @@ export default function Cleaner() {
                     </>);
                   } else if (queryContext?.valid !== true) {
                     return '削除条件を設定してください';
+                  } else if (queryContext.totalVideoCount === 0) {
+                    return '削除条件に一致する動画が存在しませんでした';
                   } else {
+                    disabled = false;
                     return <NumberFormat value={queryContext.totalVideoCount} displayType="text" prefix="条件に一致する " suffix=" 動画を削除..." thousandSeparator/>;
                   }
-                })()}
-              </Button>
+                })();
+                return (
+                  <Button variant="contained" size="medium" color="error" disabled={disabled} onClick={handleDelete}>
+                    {buttonContent}
+                  </Button>
+                );
+              })()}
             </Box>
           </Box>
         </AppHeader>
