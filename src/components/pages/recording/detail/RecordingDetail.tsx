@@ -21,7 +21,7 @@ import SubtitleCard from "@/components/organisms/SubtitleCard";
 import "./RecordingDetail.scss"
 import {Duration} from "luxon";
 import {downloadFile} from "@/utils/FileUtil";
-import {VIDEO_TYPES} from "@/Constants";
+import {VIDEO_TYPE_THEMES} from "@/Constants";
 
 const GET_SUBTITLE = gql`
     query GetSubtitle(
@@ -173,7 +173,7 @@ function Detail({subtitle: s}: {subtitle: Subtitle}) {
           <Card className="videos">
             <CardHeader title="Downloads" />
             <CardContent component={List}>
-              {Object.values(VIDEO_TYPES).map(vt => (
+              {Object.values(VIDEO_TYPE_THEMES).map(vt => (
                 <ListItem key={vt.videoType} disablePadding>
                     <ListItemIcon>
                       <img src={vt.icon} alt={vt.label} />

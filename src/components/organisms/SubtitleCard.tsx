@@ -21,7 +21,7 @@ import {normalizeTitle, TID_EPG, TID_KEYWORD} from "@/utils/SubtitleUtil";
 import {resolvePath} from "react-router";
 import {equalsPath} from "@/utils/RouteUtil";
 import {buildClassNames} from "@/utils/NodeUtil";
-import {STATUS_THEMES, ViewFileStatusType} from "@/Constants";
+import {FILE_STATUS_THEMES, fileStatusTheme, FileStatusThemeType} from "@/Constants";
 import {gql, useMutation} from "@apollo/client";
 
 const UPDATE_SUBTITLE = gql`
@@ -34,14 +34,6 @@ const UPDATE_SUBTITLE = gql`
       }
   }
 `;
-
-function statusView(status?: ViewFileStatusType | null | undefined) {
-  const statusTheme = STATUS_THEMES[status ?? 'UNDEFINED'];
-  return {
-    text: statusTheme?.label ?? '不明',
-    icon: React.cloneElement(statusTheme?.icon ?? <></>, {className: 'icon'})
-  };
-}
 
 const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
   const titles = normalizeTitle(s);
@@ -99,12 +91,12 @@ const Title = ({subtitle: s}: {subtitle: Subtitle}) => {
 
 const EditableStatus = ({subtitle: s}: {subtitle: Subtitle}) => {
   const availableOptions = ['RECEND', 'ALL_COMPLETE', 'TRANSCODE_FAILED'];
-  const selectOptions = Object.entries(STATUS_THEMES).map(e => {
+  const selectOptions = Object.entries(FILE_STATUS_THEMES).map(e => {
     return {value: e[0], available: availableOptions.includes(e[0]), ...e[1]};
   });
-  const [status, setStatus] = useState<ViewFileStatusType>(s.fileStatus ?? 'UNDEFINED');
+  const [status, setStatus] = useState<FileStatusThemeType>(s.fileStatus ?? 'UNDEFINED');
   const [updateSubtitle] = useMutation<{updateSubtitle: Subtitle}>(UPDATE_SUBTITLE);
-  const handleStatusChanged = async (e: SelectChangeEvent<ViewFileStatusType>) => {
+  const handleStatusChanged = async (e: SelectChangeEvent<FileStatusThemeType>) => {
     const newStatus = e.target.value as FileStatus;
     const input: SubtitleUpdateInput = {
       pId: s.pId,
@@ -119,17 +111,17 @@ const EditableStatus = ({subtitle: s}: {subtitle: Subtitle}) => {
   };
 
   return (
-    <Select <ViewFileStatusType>
+    <Select <FileStatusThemeType>
       value={status}
       variant="standard"
       onChange={handleStatusChanged}
       inputProps={{ sx: { paddingTop: 0, paddingBottom: 0 } }}
       renderValue={(selected) => {
-        const view = statusView(selected);
+        const fst = fileStatusTheme(selected, {iconProps: {className: 'icon'}});
         return (
           <div className="file-status" style={{ paddingLeft: '0.5em' }}>
-            {view.icon}
-            <span className="label">{view.text}</span>
+            {fst.icon}
+            <span className="label">{fst.label}</span>
           </div>
         );
       }}
@@ -177,7 +169,7 @@ export default function SubtitleCard(props: SubtitleCardProps) {
   const navigate = useNavigate();
   const startDateTime = DateTime.fromISO(s.startDateTime);
   const duration = Duration.fromISO(s.duration);
-  const status = s.fileStatus ?? 'UNDEFINED';
+  const fst = fileStatusTheme(s.fileStatus, {iconProps: {className: 'icon'}});
   const videoUri = s.hdVideoUri ?? s.sdVideoUri ?? '';
   const detailHref = `/recordings/${s.pId}`;
   const playerTo = playerPath ? playerPath(s) : `/recordings/player/${s.pId}`;
@@ -233,11 +225,10 @@ export default function SubtitleCard(props: SubtitleCardProps) {
           {detail
           ? <EditableStatus subtitle={s} />
           : (() => {
-              const view = statusView(status);
               return (
                 <div className="file-status">
-                  <Tooltip title={view.text} arrow>
-                    {view.icon}
+                  <Tooltip title={fst.label} arrow>
+                    {fst.icon}
                   </Tooltip>
                 </div>
               );

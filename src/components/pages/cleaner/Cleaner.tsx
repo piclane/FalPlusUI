@@ -27,7 +27,7 @@ import {
 import InfiniteSubtitles, {InfiniteSubtitlesMethods} from "@/components/organisms/InfiniteSubtitles";
 import SubtitleCard from "@/components/organisms/SubtitleCard";
 import "./Cleaner.scss";
-import {VIDEO_TYPES} from "@/Constants";
+import {VIDEO_TYPE_THEMES} from "@/Constants";
 import {gql, useLazyQuery, useMutation} from "@apollo/client";
 import {Scalars, SubtitleQueryInput, SubtitleResult} from "@/Model";
 import NumberFormat from 'react-number-format';
@@ -114,7 +114,7 @@ const Subtitles = React.forwardRef<SubtitlesMethods, SubtitlesProps>((
                 subtitle={s}
                 sx={{height: '100%'}}
                 footer={<span className="videos">
-                  {Object.values(VIDEO_TYPES).map(vt => isNumber(vt.videoSize(s))
+                  {Object.values(VIDEO_TYPE_THEMES).map(vt => isNumber(vt.videoSize(s))
                     ? <img key={vt.videoType} src={vt.icon} alt={vt.label} />
                     : <React.Fragment key={vt.videoType}></React.Fragment>
                   )}
@@ -179,7 +179,7 @@ const Summary = React.forwardRef<SummaryMethods, SummaryProps>((
       let videoCountSum = 0;
       for (const size of sizes) {
         for (const videoType of videoTypes) {
-          const videoSize = VIDEO_TYPES[videoType].videoSize(size);
+          const videoSize = VIDEO_TYPE_THEMES[videoType].videoSize(size);
           if(videoSize !== null) {
             videoSizeSum += videoSize;
             videoCountSum++;
@@ -366,7 +366,7 @@ export default function Cleaner() {
               <Summary onQueryContextChanged={setQueryContext} ref={summaryRef} />
               <div style={{ flexGrow: 1 }} />
               <List dense disablePadding sx={{marginRight: "20px"}}>
-                {Object.values(VIDEO_TYPES).map(vt => (
+                {Object.values(VIDEO_TYPE_THEMES).map(vt => (
                   <ListItem key={vt.videoType} dense disablePadding>
                     <ListItemButton sx={{paddingTop: '2px', paddingBottom: '2px'}}>
                       <ListItemIcon sx={{minWidth: 0}}>
