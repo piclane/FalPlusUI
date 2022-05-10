@@ -35,6 +35,7 @@ import {lightGreen, red} from "@mui/material/colors";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import {isNumber} from "@/utils/TypeUtil";
+import delay from "@/utils/Delay";
 
 const FETCH_VIDEO_SIZES = gql`
     query FindSubtitles(
@@ -71,12 +72,6 @@ const GET_JOB_PROGRESS = gql`
         jobProgress(job: $job)
     }
 `;
-
-function delay(timeout: number): Promise<void> {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, timeout);
-  })
-}
 
 interface SubtitlesProps {
   subtitleQueryInput: SubtitleQueryInput;
