@@ -27,7 +27,7 @@ import {
 import InfiniteSubtitles, {InfiniteSubtitlesMethods} from "@/components/organisms/InfiniteSubtitles";
 import SubtitleCard from "@/components/organisms/SubtitleCard";
 import "./Cleaner.scss";
-import {VIDEO_TYPES} from "@/Constants";
+import {VIDEO_TYPE_THEMES} from "@/Constants";
 import {gql, useLazyQuery, useMutation} from "@apollo/client";
 import {Scalars, SubtitleQueryInput, SubtitleResult} from "@/Model";
 import NumberFormat from 'react-number-format';
@@ -35,6 +35,7 @@ import {lightGreen, red} from "@mui/material/colors";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import {isNumber} from "@/utils/TypeUtil";
+import delay from "@/utils/Delay";
 
 const FETCH_VIDEO_SIZES = gql`
     query FindSubtitles(
@@ -72,12 +73,6 @@ const GET_JOB_PROGRESS = gql`
     }
 `;
 
-function delay(timeout: number): Promise<void> {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, timeout);
-  })
-}
-
 interface SubtitlesProps {
   subtitleQueryInput: SubtitleQueryInput;
 }
@@ -114,7 +109,7 @@ const Subtitles = React.forwardRef<SubtitlesMethods, SubtitlesProps>((
                 subtitle={s}
                 sx={{height: '100%'}}
                 footer={<span className="videos">
-                  {Object.values(VIDEO_TYPES).map(vt => isNumber(vt.videoSize(s))
+                  {Object.values(VIDEO_TYPE_THEMES).map(vt => isNumber(vt.videoSize(s))
                     ? <img key={vt.videoType} src={vt.icon} alt={vt.label} />
                     : <React.Fragment key={vt.videoType}></React.Fragment>
                   )}
@@ -179,7 +174,7 @@ const Summary = React.forwardRef<SummaryMethods, SummaryProps>((
       let videoCountSum = 0;
       for (const size of sizes) {
         for (const videoType of videoTypes) {
-          const videoSize = VIDEO_TYPES[videoType].videoSize(size);
+          const videoSize = VIDEO_TYPE_THEMES[videoType].videoSize(size);
           if(videoSize !== null) {
             videoSizeSum += videoSize;
             videoCountSum++;
@@ -366,7 +361,7 @@ export default function Cleaner() {
               <Summary onQueryContextChanged={setQueryContext} ref={summaryRef} />
               <div style={{ flexGrow: 1 }} />
               <List dense disablePadding sx={{marginRight: "20px"}}>
-                {Object.values(VIDEO_TYPES).map(vt => (
+                {Object.values(VIDEO_TYPE_THEMES).map(vt => (
                   <ListItem key={vt.videoType} dense disablePadding>
                     <ListItemButton sx={{paddingTop: '2px', paddingBottom: '2px'}}>
                       <ListItemIcon sx={{minWidth: 0}}>
@@ -387,8 +382,9 @@ export default function Cleaner() {
               <QueryForm />
             </Box>
             <Box className="row lower">
-              <Button variant="contained" size="medium" color="error" disabled={queryContext?.valid !== true || queryContext?.complete !== true} onClick={handleDelete}>
-                {(() => {
+              {(() => {
+                let disabled = true;
+                const buttonContent = (() => {
                   if(queryContext?.complete !== true) {
                     return (<>
                       <span style={{ marginRight: '0.2em' }}>集計中... </span>
@@ -396,11 +392,19 @@ export default function Cleaner() {
                     </>);
                   } else if (queryContext?.valid !== true) {
                     return '削除条件を設定してください';
+                  } else if (queryContext.totalVideoCount === 0) {
+                    return '削除条件に一致する動画が存在しませんでした';
                   } else {
+                    disabled = false;
                     return <NumberFormat value={queryContext.totalVideoCount} displayType="text" prefix="条件に一致する " suffix=" 動画を削除..." thousandSeparator/>;
                   }
-                })()}
-              </Button>
+                })();
+                return (
+                  <Button variant="contained" size="medium" color="error" disabled={disabled} onClick={handleDelete}>
+                    {buttonContent}
+                  </Button>
+                );
+              })()}
             </Box>
           </Box>
         </AppHeader>

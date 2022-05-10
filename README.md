@@ -22,6 +22,10 @@ FalPlusUI
   - 動画プレイヤー画面
   - 録画お掃除画面
 
+以上の機能は TOP 画面にある FAL+ アイコンなどから遷移した画面から利用することができます。
+
+![TOP](doc/images/top.png)
+
 ## スクリーンショット
 
 ![スクリーンショット](doc/images/screenshot.jpg)
@@ -37,7 +41,7 @@ FalPlusUI
 
 Foltia ANIME LOCKER に foltia ユーザーでログインした後、以下のコマンドを実行して下さい。
 ```bash
-$ curl -SsL 'https://raw.githubusercontent.com/piclane/FalPlusUI/develop/easy_install.sh' | bash
+$ bash <(curl -SsL 'https://raw.githubusercontent.com/piclane/FalPlusUI/develop/easy_install.sh')
 ```
 
 上記の方法が上手く行かない場合は以下を試してみて下さい。
