@@ -32,6 +32,7 @@ import {
   useSubtitleQueryInput
 } from "@/components/organisms/SearchParams";
 import {ReactComponent as BackwardIcon} from '@/assets/icon_forward.svg';
+import {buildClassNames} from "@/utils/NodeUtil";
 
 const GET_SUBTITLE = gql`
     query GetSubtitle(
@@ -373,6 +374,7 @@ export default function RecordingPlayer(props: PlayerProps) {
     });
     player.on('play', () => {
       setState("playing");
+      player?.userActive(false);
       player?.userActive(true);
     });
     player.on('pause', () => {
@@ -408,11 +410,13 @@ export default function RecordingPlayer(props: PlayerProps) {
         </Box>
       : <></>}
       <Box
-        className={[
-          'recording-player', 'player', state,
-          state === 'stopped' || isUserActive ? 'show-overlay' : '',
-          timeRemainingSec < 15 ? 'show-next-video' : ''
-        ].join(' ')}
+        className={buildClassNames(
+          'recording-player',
+          'player',
+          state, {
+          'show-overlay': state === 'stopped' || isUserActive,
+          'show-next-video': timeRemainingSec < 15
+        })}
         onMouseMove={(e: React.MouseEvent) => {
           if(isDesktop) {
             player?.reportUserActivity(e.nativeEvent);
