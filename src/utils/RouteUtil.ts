@@ -1,4 +1,4 @@
-import {Path} from "history";
+import {Path} from "react-router-dom";
 import deepEquals from 'fast-deep-equal';
 
 /**
