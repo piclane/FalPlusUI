@@ -14,11 +14,10 @@ import {
 import {Theme} from '@mui/material/styles';
 import React, {useState} from "react";
 import "./SubtitleCard.scss";
-import {Link as RouterLink, To, useLocation, useNavigate} from "react-router-dom";
+import {Link as RouterLink, To, useLocation, useNavigate, resolvePath} from "react-router-dom";
 import {SxProps} from "@mui/system";
 import {PlayCircleOutline, PlayDisabled, Videocam} from "@mui/icons-material";
 import {normalizeTitle, TID_EPG, TID_KEYWORD} from "@/utils/SubtitleUtil";
-import {resolvePath} from "react-router";
 import {equalsPath} from "@/utils/RouteUtil";
 import {buildClassNames as _BCN} from "@/utils/NodeUtil";
 import {FILE_STATUS_THEMES, fileStatusTheme, FileStatusThemeType} from "@/Constants";
