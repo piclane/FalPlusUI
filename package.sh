@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
-VERSION="$(yarn versions | grep "'fal-plus-ui':" | sed -E -e "s/^.*'fal-plus-ui': '([^']+)'.*$/\1/")"
+VERSION="$(jq -r '.version' "${SCRIPT_DIR}/package.json")"
 DEST_DIR="${SCRIPT_DIR}/dist/fal-plus-ui-${VERSION}"
 rm -rf "${DEST_DIR}"
 mkdir -p "${DEST_DIR}"

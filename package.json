@@ -3,6 +3,10 @@
   "version": "1.0.10",
   "license": "MIT",
   "homepage": "/falp",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "yarn@3.4.1",
   "dependencies": {
     "@apollo/client": "^3.5.10",
     "@apollo/react-hooks": "^4.0.0",
