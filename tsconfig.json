@@ -22,7 +22,7 @@
     "jsx": "react-jsx",
     "sourceMap": true,
     "types": [
-      "webpack-env"
+      "vite/client"
     ],
   },
   "include": [

@@ -55,9 +55,9 @@ const AppBottomFooter = React.forwardRef<HTMLDivElement, AppBottomFooterProps>((
     ...restProps
   } = props;
   const {data: apiVersionData} = useQuery<{version: string}>(FETCH_API_VERSION);
-  const commitDateTime = process.env.REACT_APP_COMMIT_DATETIME;
+  const commitDateTime = import.meta.env.REACT_APP_COMMIT_DATETIME;
   const crYear = (commitDateTime ? DateTime.fromISO(commitDateTime) : DateTime.now()).toFormat("yyyy");
-  const crUiVersion = `v${process.env.REACT_APP_VERSION}`;
+  const crUiVersion = `v${import.meta.env.REACT_APP_VERSION}`;
   const crApiVersion = apiVersionData ? `v${apiVersionData?.version}` : '...';
 
   return (
