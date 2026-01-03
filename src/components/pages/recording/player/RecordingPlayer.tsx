@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Link as RouterLink, useNavigate, useParams, useSearchParams} from "react-router-dom";
-import VideoPlayer, {VideoPlayerSource} from "@/components/atoms/VideoPlayer";
-import videojs from 'video.js';
+import VideoPlayer, {RawVideoPlayerSource, RawVideoPlayer} from "@/components/atoms/VideoPlayer";
 import {ApolloClient, gql, useApolloClient, useLazyQuery} from "@apollo/client";
 import {Subtitle, SubtitleQueryInput, SubtitleResult} from "@/Model";
 import {safeParseBoolean, safeParseInt} from "@/utils/TypeUtil";
@@ -283,8 +282,8 @@ export default function RecordingPlayer(props: PlayerProps) {
   const [isUserActive, setUserActive] = useState<boolean>(true);
   const [nextSubtitle, setNextSubtitle] = useState<Subtitle | null>(null);
   const [timeRemainingSec, setTimeRemainingSec] = useState<number>(999999);
-  const [player, setPlayer] = useState<videojs.Player | null>(null);
-  const [playing, setPlaying] = useState<VideoPlayerSource | null>(null);
+  const [player, setPlayer] = useState<RawVideoPlayer | null>(null);
+  const [playing, setPlaying] = useState<RawVideoPlayerSource | null>(null);
   const {pId, time, isContinuous} = useQueryParams();
   const [query] = useSearchQuery();
   const [order] = useSearchOrder();
@@ -347,7 +346,11 @@ export default function RecordingPlayer(props: PlayerProps) {
       return;
     }
     const d = player.duration();
-    let t = player.currentTime() + time;
+    const current = player.currentTime();
+    if (d === undefined || current === undefined) {
+      return;
+    }
+    let t = current + time;
     if(t < 0) t = 0;
     if(t > d) t = d;
     player.currentTime(t);
@@ -364,7 +367,7 @@ export default function RecordingPlayer(props: PlayerProps) {
       inactivityTimeout
     });
   };
-  const onReady = async (player: videojs.Player) => {
+  const onReady = async (player: RawVideoPlayer) => {
     setPlayer(player);
     player.one('canplay', () => {
       player.currentTime(time ?? 0);
@@ -386,10 +389,12 @@ export default function RecordingPlayer(props: PlayerProps) {
     player.on('userinactive', () => {
       setUserActive(false);
     });
-    player.on('timeupdate', function(this: videojs.Player) {
+    player.on('timeupdate', function(this: RawVideoPlayer) {
       const duration = this.duration();
       const time = this.currentTime();
-      setTimeRemainingSec(duration - time);
+      if (duration !== undefined && time !== undefined) {
+        setTimeRemainingSec(duration - time);
+      }
     });
   };
 

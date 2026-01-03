@@ -3,6 +3,7 @@ import {ArrowBack, CleaningServices, Tv} from "@mui/icons-material";
 import {Link as RouterLink, To, useLocation, useNavigate} from "react-router-dom";
 import React from "react";
 import './AppTopHeader.scss';
+import bg from '@/assets/bg-pink-blue.svg';
 
 export interface AppTopHeaderProps extends AppBarProps {
   backTo?: () => To
@@ -33,7 +34,11 @@ const AppTopHeader = React.forwardRef<HTMLDivElement, AppTopHeaderProps>((props:
       className="app-top-header"
       position={position}
       color={color}
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        backgroundImage: `url(${bg})`,
+        backgroundColor: '#4185e8',
+      }}
       ref={ref}
     >
       <Toolbar className="app-top-header-tool-bar">

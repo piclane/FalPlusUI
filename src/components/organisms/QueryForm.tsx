@@ -3,9 +3,9 @@ import {
   createTheme,
   FormControl,
   FormControlLabel,
-  Grid,
   ThemeProvider
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import React from "react";
 
 import QuerySelect from "@/components/organisms/QuerySelect";
@@ -47,11 +47,11 @@ export default function QueryForm() {
             width: '500px'
           }
         }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <QuerySelect query={query} setQuery={setQuery} />
           </Grid>
 
-          <Grid item xs={12} sx={{ textAlign: 'right' }}>
+          <Grid size={{ xs: 12 }} sx={{ textAlign: 'right' }}>
             <FormControlLabel
               control={
                 <Checkbox

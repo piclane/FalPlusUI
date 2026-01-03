@@ -104,7 +104,7 @@ const Subtitles = React.forwardRef<SubtitlesMethods, SubtitlesProps>((
           alignItems="stretch"
         >
           {subtitles.map(s => (
-            <Grid key={`cleaner-${s.pId}`} item xs={12} md={12} lg={6} xl={4}>
+            <Grid key={`cleaner-${s.pId}`} size={{xs: 12, md: 12, lg: 6, xl: 4}}>
               <SubtitleCard
                 subtitle={s}
                 sx={{height: '100%'}}

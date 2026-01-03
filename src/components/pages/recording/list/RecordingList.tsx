@@ -29,7 +29,7 @@ function Subtitles() {
           alignItems="stretch"
         >
           {subtitles.map(s => (
-            <Grid key={`recording-list-${s.pId}`} item xs={12} md={12} lg={6} xl={4}>
+            <Grid key={`recording-list-${s.pId}`} size={{ xs: 12, md: 12, lg: 6, xl: 4 }}>
               <SubtitleCard
                 subtitle={s}
                 sx={{height: '100%'}}
